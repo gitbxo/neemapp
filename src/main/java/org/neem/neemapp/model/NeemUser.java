@@ -11,59 +11,62 @@ import javax.persistence.Table;
 @Table(name = "neem_user")
 public class NeemUser {
 
-  private @Id @GeneratedValue Long id;
-  private String name;
-  private String role;
+	private @Id @GeneratedValue Long id;
+	private String name;
+	private String role;
 
-  public NeemUser() {}
+	public NeemUser() {
+	}
 
-  public NeemUser(String name, String role) {
-    this.name = name;
-    this.role = role;
-  }
-  
-  public Long getId() {
-	  return this.id;
-  }
-  public void setId(Long id) {
-	  this.id = id;
-  }
+	public NeemUser(String name, String role) {
+		this.name = name;
+		this.role = role;
+	}
 
-  public String getName() {
-	  return this.name;
-  }
-  public void setName(String name) {
-	  this.name = name;
-  }
+	public Long getId() {
+		return this.id;
+	}
 
-  public String getRole() {
-	  return this.role;
-  }
-  public void setRole(String role) {
-	  this.role = role;
-  }
+	public void setId(Long id) {
+		this.id = id;
+	}
 
-  @Override
-  public boolean equals(Object o) {
+	public String getName() {
+		return this.name;
+	}
 
-    if (this == o)
-      return true;
-    if (o == null || !(o instanceof NeemUser))
-      return false;
-    NeemUser user = (NeemUser) o;
-    return Objects.equals(this.id, user.id)
-		&& Objects.equals(this.name, user.name)
-        && Objects.equals(this.role, user.role);
-  }
+	public void setName(String name) {
+		this.name = name;
+	}
 
-  @Override
-  public int hashCode() {
-    return Objects.hash(this.id, this.name, this.role);
-  }
+	public String getRole() {
+		return this.role;
+	}
 
-  @Override
-  public String toString() {
-    return "NeemUser{" + "id=" + this.id + ", name='" + this.name + '\'' + ", role='" + this.role + '\'' + '}';
-  }
+	public void setRole(String role) {
+		this.role = role;
+	}
+
+	@Override
+	public boolean equals(Object o) {
+
+		if (this == o)
+			return true;
+		if (o == null || !(o instanceof NeemUser))
+			return false;
+		NeemUser user = (NeemUser) o;
+		return Objects.equals(this.id, user.id) && Objects.equals(this.name, user.name)
+				&& Objects.equals(this.role, user.role);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(this.id, this.name, this.role);
+	}
+
+	@Override
+	public String toString() {
+		return "NeemUser{" + "id=" + this.id + ", name='" + this.name + '\'' + ", role='" + this.role + '\'' + '}';
+	}
 
 }
