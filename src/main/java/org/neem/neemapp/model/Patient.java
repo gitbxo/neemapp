@@ -1,18 +1,27 @@
 package org.neem.neemapp.model;
 
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Objects;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
 @Entity
 @Table(name = "patient")
 public class Patient {
 
 	private @Id @GeneratedValue Long id;
+	private LocalDateTime created;
+	private LocalDateTime modified;
+
 	private String name;
+
+	@Transient
+	private List<Subscription> subscriptions;
 
 	public Patient() {
 	}
@@ -29,12 +38,36 @@ public class Patient {
 		this.id = id;
 	}
 
+	public LocalDateTime getCreatedTime() {
+		return this.created;
+	}
+
+	public void setCreatedTime(LocalDateTime created) {
+		this.created = created;
+	}
+
+	public LocalDateTime getModifiedTime() {
+		return this.modified;
+	}
+
+	public void setModifiedTime(LocalDateTime modified) {
+		this.modified = modified;
+	}
+
 	public String getName() {
 		return this.name;
 	}
 
 	public void setName(String name) {
 		this.name = name;
+	}
+
+	public List<Subscription> getSubscriptions() {
+		return this.subscriptions;
+	}
+
+	public void setSubscriptions(List<Subscription> subscriptions) {
+		this.subscriptions = subscriptions;
 	}
 
 	/*

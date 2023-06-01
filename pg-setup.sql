@@ -8,11 +8,15 @@
 
 CREATE TABLE IF NOT EXISTS patient (
   id bigserial primary key,
+  created TIMESTAMP DEFAULT NOW(),
+  modified TIMESTAMP DEFAULT NOW(),
   name varchar(128) unique
 );
 
 CREATE TABLE IF NOT EXISTS insurance_plan (
   id bigserial primary key,
+  created TIMESTAMP DEFAULT NOW(),
+  modified TIMESTAMP DEFAULT NOW(),
   name varchar(128) unique,
   description varchar(256),
   deductible int,
@@ -21,6 +25,8 @@ CREATE TABLE IF NOT EXISTS insurance_plan (
 
 CREATE TABLE IF NOT EXISTS subscription (
   id bigserial primary key,
+  created TIMESTAMP DEFAULT NOW(),
+  modified TIMESTAMP DEFAULT NOW(),
   patient_id bigint references patient NOT NULL,
   plan_id bigint references insurance_plan NOT NULL,
   used_deductible int,

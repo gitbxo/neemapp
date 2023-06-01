@@ -1,5 +1,6 @@
 package org.neem.neemapp.model;
 
+import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.Objects;
 
@@ -13,23 +14,25 @@ import javax.persistence.Table;
 public class Subscription {
 
 	private @Id @GeneratedValue Long id;
+	private LocalDateTime created;
+	private LocalDateTime modified;
 
-	private Long patient_id;
+	private Long patientId;
 
-	private Long plan_id;
+	private Long planId;
 
-	private int used_deductible;
+	private int usedDeductible;
 
-	private String used_overrides;
+	private String usedOverrides;
 
 	public Subscription() {
 	}
 
 	public Subscription(Patient patient, InsurancePlan plan) {
-		this.patient_id = patient.getId();
-		this.plan_id = plan.getId();
-		this.used_deductible = 0;
-		this.used_overrides = "";
+		this.patientId = patient.getId();
+		this.planId = plan.getId();
+		this.usedDeductible = 0;
+		this.usedOverrides = "";
 	}
 
 	public Long getId() {
@@ -40,42 +43,58 @@ public class Subscription {
 		this.id = id;
 	}
 
-	public long getPatientId() {
-		return this.patient_id;
+	public LocalDateTime getCreatedTime() {
+		return this.created;
 	}
 
-	public void setPatientId(long patient_id) {
-		this.patient_id = patient_id;
+	public void setCreatedTime(LocalDateTime created) {
+		this.created = created;
+	}
+
+	public LocalDateTime getModifiedTime() {
+		return this.modified;
+	}
+
+	public void setModifiedTime(LocalDateTime modified) {
+		this.modified = modified;
+	}
+
+	public long getPatientId() {
+		return this.patientId;
+	}
+
+	public void setPatientId(long patientId) {
+		this.patientId = patientId;
 	}
 
 	public long getPlanId() {
-		return this.plan_id;
+		return this.planId;
 	}
 
-	public void setPlanId(long plan_id) {
-		this.plan_id = plan_id;
+	public void setPlanId(long planId) {
+		this.planId = planId;
 	}
 
 	public int getUsedDeductible() {
-		// return planRepo.findById(this.plan_id).get().getDeductible() -
-		// this.used_deductible;
-		return this.used_deductible;
+		// return planRepo.findById(this.planId).get().getDeductible() -
+		// this.usedDeductible;
+		return this.usedDeductible;
 	}
 
-	public void setUsedDeductible(int used_deductible) {
-		this.used_deductible = used_deductible;
+	public void setUsedDeductible(int usedDeductible) {
+		this.usedDeductible = usedDeductible;
 	}
 
 	public String getUsedOverrides() {
-		return this.used_overrides;
+		return this.usedOverrides;
 	}
 
-	public void setUsedOverrides(String used_overrides) {
-		this.used_overrides = used_overrides;
+	public void setUsedOverrides(String usedOverrides) {
+		this.usedOverrides = usedOverrides;
 	}
 
 	public Map<InsurancePlan.MedicalType, Integer> getUsedOverridesMap() {
-		Map<InsurancePlan.MedicalType, Integer> usedOverrides = InsurancePlan.getOverridesMap(this.used_overrides);
+		Map<InsurancePlan.MedicalType, Integer> usedOverrides = InsurancePlan.getOverridesMap(this.usedOverrides);
 
 		return usedOverrides;
 	}
@@ -88,21 +107,21 @@ public class Subscription {
 		if (o == null || !(o instanceof Subscription))
 			return false;
 		Subscription subscription = (Subscription) o;
-		return Objects.equals(this.id, subscription.id) && Objects.equals(this.patient_id, subscription.patient_id)
-				&& Objects.equals(this.plan_id, subscription.plan_id)
-				&& (this.used_deductible == subscription.used_deductible)
-				&& Objects.equals(this.used_overrides, subscription.used_overrides);
+		return Objects.equals(this.id, subscription.id) && Objects.equals(this.patientId, subscription.patientId)
+				&& Objects.equals(this.planId, subscription.planId)
+				&& (this.usedDeductible == subscription.usedDeductible)
+				&& Objects.equals(this.usedOverrides, subscription.usedOverrides);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(this.id, this.patient_id, this.plan_id, this.used_deductible);
+		return Objects.hash(this.id, this.patientId, this.planId, this.usedDeductible);
 	}
 
 	@Override
 	public String toString() {
-		return "Subscription{" + "id=" + this.id + "," + " patient='" + String.valueOf(this.patient_id) + " plan='"
-				+ String.valueOf(this.plan_id) + '\'' + '}';
+		return "Subscription{" + "id=" + this.id + "," + " patient='" + String.valueOf(this.patientId) + " plan='"
+				+ String.valueOf(this.planId) + '\'' + '}';
 	}
 
 }

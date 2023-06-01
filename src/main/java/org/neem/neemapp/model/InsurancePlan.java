@@ -1,5 +1,6 @@
 package org.neem.neemapp.model;
 
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -22,6 +23,9 @@ public class InsurancePlan {
 	}
 
 	private @Id @GeneratedValue Long id;
+	private LocalDateTime created;
+	private LocalDateTime modified;
+
 	private String name;
 
 	private String description;
@@ -50,6 +54,22 @@ public class InsurancePlan {
 
 	public void setId(Long id) {
 		this.id = id;
+	}
+
+	public LocalDateTime getCreatedTime() {
+		return this.created;
+	}
+
+	public void setCreatedTime(LocalDateTime created) {
+		this.created = created;
+	}
+
+	public LocalDateTime getModifiedTime() {
+		return this.modified;
+	}
+
+	public void setModifiedTime(LocalDateTime modified) {
+		this.modified = modified;
 	}
 
 	public String getName() {
@@ -82,6 +102,10 @@ public class InsurancePlan {
 
 	public void setOverrides(String overrides) {
 		this.overrides = overrides;
+	}
+
+	public Map<InsurancePlan.MedicalType, Integer> getOverridesMap() {
+		return InsurancePlan.getOverridesMap(this.overrides);
 	}
 
 	@Override

@@ -3,6 +3,8 @@ package org.neem.neemapp.api;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
+import java.util.List;
+
 import org.neem.neemapp.jpa.NeemUserRepo;
 import org.neem.neemapp.jpa.InsurancePlanRepo;
 import org.neem.neemapp.jpa.PatientRepo;
@@ -30,8 +32,8 @@ class NeemController {
 	SubscriptionRepo subscriptionRepo;
 
 	// Example command:
-	// curl -X GET http://localhost:8000/user/1
-	@GetMapping("/user/{id}")
+	// curl -X GET http://localhost:8000/rest/user/1
+	@GetMapping("/rest/user/{id}")
 	EntityModel<NeemUser> getUser(@PathVariable Long id) {
 
 		NeemUser user = userRepo.findById(id).orElseThrow(() -> new UserNotFoundException(id));
@@ -40,8 +42,8 @@ class NeemController {
 	}
 
 	// Example command:
-	// curl -X GET http://localhost:8000/plan/1
-	@GetMapping("/plan/{id}")
+	// curl -X GET http://localhost:8000/rest/plan/1
+	@GetMapping("/rest/plan/{id}")
 	EntityModel<InsurancePlan> getPlan(@PathVariable Long id) {
 
 		InsurancePlan plan = planRepo.findById(id).orElseThrow(() -> new UserNotFoundException(id));
@@ -50,18 +52,20 @@ class NeemController {
 	}
 
 	// Example command:
-	// curl -X GET http://localhost:8000/patient/1
-	@GetMapping("/patient/{id}")
+	// curl -X GET http://localhost:8000/rest/patient/1
+	@GetMapping("/rest/patient/{id}")
 	EntityModel<Patient> getPatient(@PathVariable Long id) {
 
 		Patient patient = patientRepo.findById(id).orElseThrow(() -> new UserNotFoundException(id));
+		List<Subscription> subscriptions = subscriptionRepo.findByPatientId(id);
+		patient.setSubscriptions(subscriptions);
 
 		return EntityModel.of(patient, linkTo(methodOn(NeemController.class).getPatient(id)).withSelfRel());
 	}
 
 	// Example command:
-	// curl -X GET http://localhost:8000/subscription/1
-	@GetMapping("/subscription/{id}")
+	// curl -X GET http://localhost:8000/rest/subscription/1
+	@GetMapping("/rest/subscription/{id}")
 	EntityModel<Subscription> getSubscription(@PathVariable Long id) {
 
 		Subscription subscription = subscriptionRepo.findById(id).orElseThrow(() -> new UserNotFoundException(id));
