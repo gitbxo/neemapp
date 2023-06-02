@@ -8,5 +8,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface SubscriptionRepo extends JpaRepository<Subscription, Long> {
 
 	List<Subscription> findByPatientId(Long patientId);
+	List<Subscription> findByPatientIdAndPlanId(Long patientId, Long planId);
 
 }

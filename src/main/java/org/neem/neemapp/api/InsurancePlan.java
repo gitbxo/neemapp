@@ -5,6 +5,12 @@ import java.util.Objects;
 import java.util.Optional;
 
 import org.neem.neemapp.jpa.InsurancePlanRepo;
+import org.neem.neemapp.model.InsurancePlan.MedicalType;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
 public class InsurancePlan {
 	// update deductibles, will have json data:
@@ -20,7 +26,7 @@ public class InsurancePlan {
 
 	private int deductible;
 
-	private Map<org.neem.neemapp.model.InsurancePlan.MedicalType, Integer> overrides;
+	private Map<MedicalType, Integer> overrides;
 
 	public InsurancePlan() {
 		this.name = "New Insurance Plan";
@@ -29,7 +35,7 @@ public class InsurancePlan {
 	}
 
 	public InsurancePlan(Long id, String name, String description, int deductible,
-			Map<org.neem.neemapp.model.InsurancePlan.MedicalType, Integer> overrides) {
+			Map<MedicalType, Integer> overrides) {
 		this.id = id;
 		this.name = name;
 		this.description = description;
@@ -69,11 +75,11 @@ public class InsurancePlan {
 		this.deductible = deductible;
 	}
 
-	public Map<org.neem.neemapp.model.InsurancePlan.MedicalType, Integer> getOverrides() {
+	public Map<MedicalType, Integer> getOverrides() {
 		return this.overrides;
 	}
 
-	public void setOverrides(Map<org.neem.neemapp.model.InsurancePlan.MedicalType, Integer> overrides) {
+	public void setOverrides(Map<MedicalType, Integer> overrides) {
 		this.overrides = overrides;
 	}
 
@@ -122,5 +128,25 @@ public class InsurancePlan {
 
 		return new InsurancePlan(db_plan.getId(), db_plan.getName(), db_plan.getDescription(), db_plan.getDeductible(),
 				db_plan.getOverridesMap());
+	}
+
+	public static class PlanNotFoundException extends RuntimeException {
+
+		private static final long serialVersionUID = 101L;
+
+		PlanNotFoundException(Long id) {
+			super("Could not find plan " + id);
+		}
+	}
+
+	@ControllerAdvice
+	public static class PlanNotFoundAdvice {
+
+		@ResponseBody
+		@ExceptionHandler(PlanNotFoundException.class)
+		@ResponseStatus(HttpStatus.NOT_FOUND)
+		String notFoundHandler(PlanNotFoundException ex) {
+			return ex.getMessage();
+		}
 	}
 }
