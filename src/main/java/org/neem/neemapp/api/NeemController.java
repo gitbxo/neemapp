@@ -5,18 +5,20 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 import java.util.List;
 
+import org.neem.neemapp.api.InsurancePlan;
 import org.neem.neemapp.jpa.NeemUserRepo;
 import org.neem.neemapp.jpa.InsurancePlanRepo;
 import org.neem.neemapp.jpa.PatientRepo;
 import org.neem.neemapp.jpa.SubscriptionRepo;
 import org.neem.neemapp.model.NeemUser;
-import org.neem.neemapp.model.InsurancePlan;
 import org.neem.neemapp.model.Patient;
 import org.neem.neemapp.model.Subscription;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -45,10 +47,24 @@ class NeemController {
 	// curl -X GET http://localhost:8000/rest/plan/1
 	@GetMapping("/rest/plan/{id}")
 	EntityModel<InsurancePlan> getPlan(@PathVariable Long id) {
-
-		InsurancePlan plan = planRepo.findById(id).orElseThrow(() -> new UserNotFoundException(id));
+		InsurancePlan plan = InsurancePlan.findByPlanId(planRepo, id);
+		if (plan == null) {
+			throw new UserNotFoundException(id);
+		}
 
 		return EntityModel.of(plan, linkTo(methodOn(NeemController.class).getPlan(id)).withSelfRel());
+	}
+
+	// Example command:
+	// curl -X PUT http://localhost:8000/rest/plan/1
+	@PutMapping("/rest/plan/{id}")
+	InsurancePlan updatePlan(@PathVariable Long id, @RequestBody InsurancePlan plan) {
+		InsurancePlan updated = InsurancePlan.updatePlan(planRepo, id, plan);
+		if (updated == null) {
+			throw new UserNotFoundException(id);
+		}
+
+		return updated;
 	}
 
 	// Example command:

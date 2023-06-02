@@ -113,7 +113,7 @@ public class InsurancePlan {
 
 		if (this == o)
 			return true;
-		if (o == null || !(o instanceof Patient))
+		if (o == null || !(o instanceof InsurancePlan))
 			return false;
 		InsurancePlan plan = (InsurancePlan) o;
 		return Objects.equals(this.id, plan.id) && Objects.equals(this.name, plan.name);
@@ -140,12 +140,12 @@ public class InsurancePlan {
 		boolean appendComma = false;
 		StringBuilder sb = new StringBuilder();
 		for (Map.Entry<MedicalType, Integer> e : overridesMap.entrySet()) {
-			sb.append(e.getKey().name()).append(":").append(e.getValue().toString());
 			if (appendComma) {
 				sb.append(",");
 			} else {
 				appendComma = true;
 			}
+			sb.append(e.getKey().name()).append(":").append(e.getValue().toString());
 		}
 		return sb.toString();
 	}
