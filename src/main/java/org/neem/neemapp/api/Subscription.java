@@ -1,5 +1,7 @@
 package org.neem.neemapp.api;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -121,10 +123,16 @@ public class Subscription {
 			return null;
 		}
 		org.neem.neemapp.model.Subscription db_subscription = subscription_list.get(0);
-		db_subscription.setUsedDeductible(subscription.getUsedDeductible());
-		db_subscription.setUsedOverrides(
-				org.neem.neemapp.model.InsurancePlan.buildOverridesFromMap(subscription.getUsedOverrides()));
-		subscriptionRepo.saveAndFlush(db_subscription);
+		String subscription_overrides = org.neem.neemapp.model.InsurancePlan
+				.buildOverridesFromMap(subscription.getUsedOverrides());
+		if (db_subscription.getUsedDeductible() != subscription.getUsedDeductible()
+				|| !subscription_overrides.equals(db_subscription.getUsedOverrides())) {
+
+			db_subscription.setUsedDeductible(subscription.getUsedDeductible());
+			db_subscription.setUsedOverrides(subscription_overrides);
+			db_subscription.setModifiedTime(LocalDateTime.now(ZoneId.of("UTC")));
+			subscriptionRepo.saveAndFlush(db_subscription);
+		}
 
 		return new Subscription(db_subscription.getId(), db_subscription.getPatientId(), db_subscription.getPlanId(),
 				db_subscription.getUsedDeductible(), db_subscription.getUsedOverridesMap());
