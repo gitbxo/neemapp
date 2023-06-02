@@ -24,13 +24,13 @@ CREATE TABLE IF NOT EXISTS insurance_plan (
 );
 
 CREATE TABLE IF NOT EXISTS subscription (
-  id bigserial primary key,
   created TIMESTAMP DEFAULT NOW(),
   modified TIMESTAMP DEFAULT NOW(),
   patient_id bigint references patient NOT NULL,
   plan_id bigint references insurance_plan NOT NULL,
   used_deductible int,
-  used_overrides varchar(256)
+  used_overrides varchar(256),
+  PRIMARY KEY (patient_id, plan_id)
 );
 
 

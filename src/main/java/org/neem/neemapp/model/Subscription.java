@@ -5,21 +5,22 @@ import java.util.Map;
 import java.util.Objects;
 
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.IdClass;
 import javax.persistence.Table;
 
 @Entity
+@IdClass(SubscriptionId.class)
 @Table(name = "subscription")
 public class Subscription {
 
-	private @Id @GeneratedValue Long id;
+	private @Id Long patientId;
+
+	private @Id Long  planId;
+
 	private LocalDateTime created;
+
 	private LocalDateTime modified;
-
-	private Long patientId;
-
-	private Long planId;
 
 	private int usedDeductible;
 
@@ -33,14 +34,6 @@ public class Subscription {
 		this.planId = plan.getId();
 		this.usedDeductible = 0;
 		this.usedOverrides = "";
-	}
-
-	public Long getId() {
-		return this.id;
-	}
-
-	public void setId(Long id) {
-		this.id = id;
 	}
 
 	public LocalDateTime getCreatedTime() {
@@ -107,7 +100,7 @@ public class Subscription {
 		if (o == null || !(o instanceof Subscription))
 			return false;
 		Subscription subscription = (Subscription) o;
-		return Objects.equals(this.id, subscription.id) && Objects.equals(this.patientId, subscription.patientId)
+		return Objects.equals(this.patientId, subscription.patientId)
 				&& Objects.equals(this.planId, subscription.planId)
 				&& (this.usedDeductible == subscription.usedDeductible)
 				&& Objects.equals(this.usedOverrides, subscription.usedOverrides);
@@ -115,12 +108,12 @@ public class Subscription {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(this.id, this.patientId, this.planId, this.usedDeductible);
+		return Objects.hash(this.patientId, this.planId, this.usedDeductible);
 	}
 
 	@Override
 	public String toString() {
-		return "Subscription{" + "id=" + this.id + "," + " patient='" + String.valueOf(this.patientId) + " plan='"
+		return "Subscription{" + " patientId='" + String.valueOf(this.patientId) + " planId='"
 				+ String.valueOf(this.planId) + '\'' + '}';
 	}
 

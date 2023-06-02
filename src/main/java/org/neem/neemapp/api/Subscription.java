@@ -19,8 +19,6 @@ public class Subscription {
 	 * { "plan_id": 123, "deductible": 300, "overrides": { "ortho": 1000 } }
 	 */
 
-	private Long id;
-
 	private Long patientId;
 
 	private Long planId;
@@ -29,21 +27,11 @@ public class Subscription {
 
 	private Map<MedicalType, Integer> usedOverrides;
 
-	public Subscription(Long id, long patientId, long planId, int usedDeductible,
-			Map<MedicalType, Integer> usedOverrides) {
-		this.id = id;
+	public Subscription(long patientId, long planId, int usedDeductible, Map<MedicalType, Integer> usedOverrides) {
 		this.patientId = patientId;
 		this.planId = planId;
 		this.usedDeductible = usedDeductible;
 		this.usedOverrides = usedOverrides;
-	}
-
-	public Long getId() {
-		return this.id;
-	}
-
-	public void setId(Long id) {
-		this.id = id;
 	}
 
 	public Long getPatientId() {
@@ -86,19 +74,18 @@ public class Subscription {
 		if (o == null || !(o instanceof Subscription))
 			return false;
 		Subscription subscription = (Subscription) o;
-		return Objects.equals(this.id, subscription.id) && Objects.equals(this.patientId, subscription.patientId)
+		return Objects.equals(this.patientId, subscription.patientId)
 				&& Objects.equals(this.planId, subscription.planId);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(this.id, this.patientId, this.planId,
-				(this.usedOverrides == null ? "" : this.usedOverrides));
+		return Objects.hash(this.patientId, this.planId, (this.usedOverrides == null ? "" : this.usedOverrides));
 	}
 
 	@Override
 	public String toString() {
-		return "Subscription{" + "id=" + this.id + ", patientId=" + this.patientId + ", planId=" + this.planId + '}';
+		return "Subscription{" + " patientId=" + this.patientId + ", planId=" + this.planId + '}';
 	}
 
 	public static Subscription findByPatientIdAndPlanId(SubscriptionRepo subscriptionRepo, Long patient_id,
@@ -109,7 +96,7 @@ public class Subscription {
 			return null;
 		}
 		org.neem.neemapp.model.Subscription db_subscription = subscription_list.get(0);
-		return new Subscription(db_subscription.getId(), db_subscription.getPatientId(), db_subscription.getPlanId(),
+		return new Subscription(db_subscription.getPatientId(), db_subscription.getPlanId(),
 				db_subscription.getUsedDeductible(), db_subscription.getUsedOverridesMap());
 	}
 
@@ -132,7 +119,7 @@ public class Subscription {
 			subscriptionRepo.saveAndFlush(db_subscription);
 		}
 
-		return new Subscription(db_subscription.getId(), db_subscription.getPatientId(), db_subscription.getPlanId(),
+		return new Subscription(db_subscription.getPatientId(), db_subscription.getPlanId(),
 				db_subscription.getUsedDeductible(), db_subscription.getUsedOverridesMap());
 	}
 
