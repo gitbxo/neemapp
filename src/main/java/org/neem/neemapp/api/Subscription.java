@@ -1,11 +1,9 @@
 package org.neem.neemapp.api;
 
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 
 import org.neem.neemapp.jpa.SubscriptionRepo;
 import org.neem.neemapp.model.InsurancePlan.MedicalType;
@@ -130,7 +128,7 @@ public class Subscription {
 
 			db_subscription.setUsedDeductible(subscription.getUsedDeductible());
 			db_subscription.setUsedOverrides(subscription_overrides);
-			db_subscription.setModifiedTime(LocalDateTime.now(ZoneId.of("UTC")));
+			db_subscription.setModifiedTime(LocalDateTime.now());
 			subscriptionRepo.saveAndFlush(db_subscription);
 		}
 

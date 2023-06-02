@@ -1,7 +1,6 @@
 package org.neem.neemapp.api;
 
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -123,14 +122,15 @@ public class InsurancePlan {
 		}
 		org.neem.neemapp.model.InsurancePlan db_plan = opt_plan.get();
 		String plan_overrides = org.neem.neemapp.model.InsurancePlan.buildOverridesFromMap(plan.getOverrides());
-		if (db_plan.getName() != plan.getName() || db_plan.getDescription() != plan.getDescription()
+		if (db_plan.getName() == null || !db_plan.getName().equals(plan.getName()) || db_plan.getDescription() == null
+				|| !db_plan.getDescription().equals(plan.getDescription())
 				|| db_plan.getDeductible() != plan.getDeductible() || !plan_overrides.equals(db_plan.getOverrides())) {
 
 			db_plan.setName(plan.getName());
 			db_plan.setDescription(plan.getDescription());
 			db_plan.setDeductible(plan.getDeductible());
 			db_plan.setOverrides(plan_overrides);
-			db_plan.setModifiedTime(LocalDateTime.now(ZoneId.of("UTC")));
+			db_plan.setModifiedTime(LocalDateTime.now());
 			planRepo.saveAndFlush(db_plan);
 		}
 
