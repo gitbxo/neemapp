@@ -71,42 +71,54 @@ public class Subscription {
 
 	@Override
 	public boolean equals(Object o) {
-
 		if (this == o)
 			return true;
 		if (o == null || !(o instanceof Subscription))
 			return false;
-		Subscription subscription = (Subscription) o;
-		return Objects.equals(this.patientId, subscription.patientId) && Objects.equals(this.plan, subscription.plan);
+
+		return this.toString().equals(((Subscription) o).toString());
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(this.patientId, this.plan, (this.usedOverrides == null ? "" : this.usedOverrides));
+		return Objects.hash(this.toString());
 	}
 
 	@Override
 	public String toString() {
-		return "Subscription{" + " patientId=" + this.patientId + ", plan=" + this.plan + '}';
+		return "Subscription{" + " patientId='" + String.valueOf(this.patientId) + "', plan='"
+				+ String.valueOf(this.plan) + "', usedOverrides='"
+				+ org.neem.neemapp.model.InsurancePlan.buildOverridesFromMap(this.usedOverrides) + "', usedDeductible="
+				+ String.valueOf(this.usedDeductible) + '}';
 	}
 
-	public static Subscription findByPatientIdAndPlanId(SubscriptionRepo subscriptionRepo, InsurancePlanRepo planRepo,
-			Long patient_id, Long plan_id) {
-		Optional<org.neem.neemapp.model.Subscription> opt_subscription = subscriptionRepo
-				.findById(new SubscriptionId(patient_id, plan_id));
-		if (opt_subscription.isEmpty() || opt_subscription.get() == null) {
-			return null;
-		}
-		org.neem.neemapp.model.Subscription db_subscription = opt_subscription.get();
-		InsurancePlan plan = InsurancePlan.findByPlanId(planRepo, db_subscription.getPlanId());
+	public static Subscription buildSubscription(org.neem.neemapp.model.Subscription db_subscription,
+			InsurancePlan plan) {
 		return new Subscription(db_subscription.getPatientId(), plan, db_subscription.getUsedDeductible(),
 				db_subscription.getUsedOverridesMap());
 	}
 
-	public static Subscription updateSubscription(SubscriptionRepo subscriptionRepo, InsurancePlanRepo planRepo,
-			Long patient_id, Long plan_id, Subscription subscription) {
+	public static Subscription findByPatientIdAndPlan(SubscriptionRepo subscriptionRepo, Long patient_id,
+			InsurancePlan plan) {
 		Optional<org.neem.neemapp.model.Subscription> opt_subscription = subscriptionRepo
-				.findById(new SubscriptionId(patient_id, plan_id));
+				.findById(new SubscriptionId(patient_id, plan.getId()));
+		if (opt_subscription.isEmpty() || opt_subscription.get() == null) {
+			return null;
+		}
+
+		return buildSubscription(opt_subscription.get(), plan);
+	}
+
+	public static Subscription findByPatientIdAndPlanId(SubscriptionRepo subscriptionRepo, InsurancePlanRepo planRepo,
+			Long patient_id, Long plan_id) {
+		InsurancePlan plan = InsurancePlan.findByPlanId(planRepo, plan_id);
+		return findByPatientIdAndPlan(subscriptionRepo, patient_id, plan);
+	}
+
+	public static Subscription updateSubscription(SubscriptionRepo subscriptionRepo, Long patient_id,
+			InsurancePlan plan, Subscription subscription) {
+		Optional<org.neem.neemapp.model.Subscription> opt_subscription = subscriptionRepo
+				.findById(new SubscriptionId(patient_id, plan.getId()));
 		if (opt_subscription.isEmpty() || opt_subscription.get() == null) {
 			return null;
 		}
@@ -122,9 +134,13 @@ public class Subscription {
 			subscriptionRepo.saveAndFlush(db_subscription);
 		}
 
-		InsurancePlan plan = InsurancePlan.findByPlanId(planRepo, db_subscription.getPlanId());
-		return new Subscription(db_subscription.getPatientId(), plan, db_subscription.getUsedDeductible(),
-				db_subscription.getUsedOverridesMap());
+		return buildSubscription(db_subscription, plan);
+	}
+
+	public static Subscription updateSubscription(SubscriptionRepo subscriptionRepo, InsurancePlanRepo planRepo,
+			Long patient_id, Long plan_id, Subscription subscription) {
+		InsurancePlan plan = InsurancePlan.findByPlanId(planRepo, plan_id);
+		return updateSubscription(subscriptionRepo, patient_id, plan, subscription);
 	}
 
 	public static class SubscriptionNotFoundException extends RuntimeException {

@@ -86,23 +86,30 @@ public class InsurancePlan {
 
 	@Override
 	public boolean equals(Object o) {
-
 		if (this == o)
 			return true;
 		if (o == null || !(o instanceof InsurancePlan))
 			return false;
-		InsurancePlan plan = (InsurancePlan) o;
-		return Objects.equals(this.id, plan.id) && Objects.equals(this.name, plan.name);
+
+		return this.toString().equals(((InsurancePlan) o).toString());
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(this.id, this.name, this.deductible, (this.overrides == null ? "" : this.overrides));
+		return Objects.hash(this.toString());
 	}
 
 	@Override
 	public String toString() {
-		return "InsurancePlan{" + "id=" + this.id + ", name='" + this.name + '\'' + '}';
+		return "InsurancePlan{" + "id=" + String.valueOf(this.id) + ", name='" + String.valueOf(this.name)
+				+ "', description='" + String.valueOf(this.description) + "', overrides='"
+				+ org.neem.neemapp.model.InsurancePlan.buildOverridesFromMap(this.overrides) + "', deductible="
+				+ String.valueOf(this.deductible) + '}';
+	}
+
+	public static InsurancePlan buildInsurancePlan(org.neem.neemapp.model.InsurancePlan db_plan) {
+		return new InsurancePlan(db_plan.getId(), db_plan.getName(), db_plan.getDescription(), db_plan.getDeductible(),
+				db_plan.getOverridesMap());
 	}
 
 	public static InsurancePlan findByPlanId(InsurancePlanRepo planRepo, Long plan_id) {
@@ -110,9 +117,8 @@ public class InsurancePlan {
 		if (opt_plan.isEmpty() || opt_plan.get() == null) {
 			return null;
 		}
-		org.neem.neemapp.model.InsurancePlan db_plan = opt_plan.get();
-		return new InsurancePlan(db_plan.getId(), db_plan.getName(), db_plan.getDescription(), db_plan.getDeductible(),
-				db_plan.getOverridesMap());
+
+		return buildInsurancePlan(opt_plan.get());
 	}
 
 	public static InsurancePlan updatePlan(InsurancePlanRepo planRepo, Long plan_id, InsurancePlan plan) {
@@ -121,21 +127,18 @@ public class InsurancePlan {
 			return null;
 		}
 		org.neem.neemapp.model.InsurancePlan db_plan = opt_plan.get();
-		String plan_overrides = org.neem.neemapp.model.InsurancePlan.buildOverridesFromMap(plan.getOverrides());
-		if (db_plan.getName() == null || !db_plan.getName().equals(plan.getName()) || db_plan.getDescription() == null
-				|| !db_plan.getDescription().equals(plan.getDescription())
-				|| db_plan.getDeductible() != plan.getDeductible() || !plan_overrides.equals(db_plan.getOverrides())) {
-
-			db_plan.setName(plan.getName());
-			db_plan.setDescription(plan.getDescription());
-			db_plan.setDeductible(plan.getDeductible());
-			db_plan.setOverrides(plan_overrides);
-			db_plan.setModifiedTime(LocalDateTime.now());
-			planRepo.saveAndFlush(db_plan);
+		if (plan.equals(buildInsurancePlan(db_plan))) {
+			return plan;
 		}
 
-		return new InsurancePlan(db_plan.getId(), db_plan.getName(), db_plan.getDescription(), db_plan.getDeductible(),
-				db_plan.getOverridesMap());
+		db_plan.setName(plan.getName());
+		db_plan.setDescription(plan.getDescription());
+		db_plan.setDeductible(plan.getDeductible());
+		db_plan.setOverrides(org.neem.neemapp.model.InsurancePlan.buildOverridesFromMap(plan.getOverrides()));
+		db_plan.setModifiedTime(LocalDateTime.now());
+		planRepo.saveAndFlush(db_plan);
+
+		return buildInsurancePlan(db_plan);
 	}
 
 	public static class PlanNotFoundException extends RuntimeException {

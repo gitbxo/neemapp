@@ -28,8 +28,8 @@ public class SubscriptionId implements Serializable {
 			return true;
 		if (o == null || !(o instanceof SubscriptionId))
 			return false;
-		SubscriptionId subscription = (SubscriptionId) o;
-		return this.toString().equals(subscription.toString());
+
+		return this.toString().equals(((SubscriptionId) o).toString());
 	}
 
 	@Override

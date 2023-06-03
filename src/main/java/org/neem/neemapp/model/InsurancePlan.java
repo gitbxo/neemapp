@@ -110,23 +110,24 @@ public class InsurancePlan {
 
 	@Override
 	public boolean equals(Object o) {
-
 		if (this == o)
 			return true;
 		if (o == null || !(o instanceof InsurancePlan))
 			return false;
-		InsurancePlan plan = (InsurancePlan) o;
-		return Objects.equals(this.id, plan.id) && Objects.equals(this.name, plan.name);
+
+		return this.toString().equals(((InsurancePlan) o).toString());
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(this.id, this.name, this.deductible, (this.overrides == null ? "" : this.overrides));
+		return Objects.hash(this.toString());
 	}
 
 	@Override
 	public String toString() {
-		return "InsurancePlan{" + "id=" + this.id + ", name='" + this.name + '\'' + '}';
+		return "InsurancePlan{" + "id=" + String.valueOf(this.id) + ", name='" + String.valueOf(this.name) + "', description='"
+				+ String.valueOf(this.description) + "', overrides='" + String.valueOf(this.overrides)
+				+ "', deductible=" + String.valueOf(this.deductible) + '}';
 	}
 
 	/*

@@ -16,7 +16,7 @@ public class Subscription {
 
 	private @Id Long patientId;
 
-	private @Id Long  planId;
+	private @Id Long planId;
 
 	private LocalDateTime created;
 
@@ -94,27 +94,24 @@ public class Subscription {
 
 	@Override
 	public boolean equals(Object o) {
-
 		if (this == o)
 			return true;
 		if (o == null || !(o instanceof Subscription))
 			return false;
-		Subscription subscription = (Subscription) o;
-		return Objects.equals(this.patientId, subscription.patientId)
-				&& Objects.equals(this.planId, subscription.planId)
-				&& (this.usedDeductible == subscription.usedDeductible)
-				&& Objects.equals(this.usedOverrides, subscription.usedOverrides);
+
+		return this.toString().equals(((Subscription) o).toString());
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(this.patientId, this.planId, this.usedDeductible);
+		return Objects.hash(this.toString());
 	}
 
 	@Override
 	public String toString() {
-		return "Subscription{" + " patientId='" + String.valueOf(this.patientId) + " planId='"
-				+ String.valueOf(this.planId) + '\'' + '}';
+		return "Subscription{" + " patientId='" + String.valueOf(this.patientId) + "', planId='"
+				+ String.valueOf(this.planId) + "', usedOverrides='" + String.valueOf(this.usedOverrides)
+				+ "', usedDeductible=" + String.valueOf(this.usedDeductible) + '}';
 	}
 
 }
