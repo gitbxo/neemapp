@@ -1,12 +1,14 @@
 package org.neem.neemapp.api;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 
+import org.neem.neemapp.jpa.InsurancePlanRepo;
 import org.neem.neemapp.jpa.SubscriptionRepo;
 import org.neem.neemapp.model.InsurancePlan.MedicalType;
+import org.neem.neemapp.model.SubscriptionId;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -21,15 +23,16 @@ public class Subscription {
 
 	private Long patientId;
 
-	private Long planId;
+	private InsurancePlan plan;
 
 	private int usedDeductible;
 
 	private Map<MedicalType, Integer> usedOverrides;
 
-	public Subscription(long patientId, long planId, int usedDeductible, Map<MedicalType, Integer> usedOverrides) {
+	public Subscription(long patientId, InsurancePlan plan, int usedDeductible,
+			Map<MedicalType, Integer> usedOverrides) {
 		this.patientId = patientId;
-		this.planId = planId;
+		this.plan = plan;
 		this.usedDeductible = usedDeductible;
 		this.usedOverrides = usedOverrides;
 	}
@@ -42,12 +45,12 @@ public class Subscription {
 		this.patientId = patientId;
 	}
 
-	public Long getPlanId() {
-		return this.planId;
+	public InsurancePlan getPlan() {
+		return this.plan;
 	}
 
-	public void setPlanId(Long planId) {
-		this.planId = planId;
+	public void setPlan(InsurancePlan plan) {
+		this.plan = plan;
 	}
 
 	public int getUsedDeductible() {
@@ -74,40 +77,40 @@ public class Subscription {
 		if (o == null || !(o instanceof Subscription))
 			return false;
 		Subscription subscription = (Subscription) o;
-		return Objects.equals(this.patientId, subscription.patientId)
-				&& Objects.equals(this.planId, subscription.planId);
+		return Objects.equals(this.patientId, subscription.patientId) && Objects.equals(this.plan, subscription.plan);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(this.patientId, this.planId, (this.usedOverrides == null ? "" : this.usedOverrides));
+		return Objects.hash(this.patientId, this.plan, (this.usedOverrides == null ? "" : this.usedOverrides));
 	}
 
 	@Override
 	public String toString() {
-		return "Subscription{" + " patientId=" + this.patientId + ", planId=" + this.planId + '}';
+		return "Subscription{" + " patientId=" + this.patientId + ", plan=" + this.plan + '}';
 	}
 
-	public static Subscription findByPatientIdAndPlanId(SubscriptionRepo subscriptionRepo, Long patient_id,
-			Long plan_id) {
-		List<org.neem.neemapp.model.Subscription> subscription_list = subscriptionRepo
-				.findByPatientIdAndPlanId(patient_id, plan_id);
-		if (subscription_list == null || subscription_list.isEmpty()) {
+	public static Subscription findByPatientIdAndPlanId(SubscriptionRepo subscriptionRepo, InsurancePlanRepo planRepo,
+			Long patient_id, Long plan_id) {
+		Optional<org.neem.neemapp.model.Subscription> opt_subscription = subscriptionRepo
+				.findById(new SubscriptionId(patient_id, plan_id));
+		if (opt_subscription.isEmpty() || opt_subscription.get() == null) {
 			return null;
 		}
-		org.neem.neemapp.model.Subscription db_subscription = subscription_list.get(0);
-		return new Subscription(db_subscription.getPatientId(), db_subscription.getPlanId(),
-				db_subscription.getUsedDeductible(), db_subscription.getUsedOverridesMap());
+		org.neem.neemapp.model.Subscription db_subscription = opt_subscription.get();
+		InsurancePlan plan = InsurancePlan.findByPlanId(planRepo, db_subscription.getPlanId());
+		return new Subscription(db_subscription.getPatientId(), plan, db_subscription.getUsedDeductible(),
+				db_subscription.getUsedOverridesMap());
 	}
 
-	public static Subscription updateSubscription(SubscriptionRepo subscriptionRepo, Long patient_id, Long plan_id,
-			Subscription subscription) {
-		List<org.neem.neemapp.model.Subscription> subscription_list = subscriptionRepo
-				.findByPatientIdAndPlanId(patient_id, plan_id);
-		if (subscription_list == null || subscription_list.isEmpty()) {
+	public static Subscription updateSubscription(SubscriptionRepo subscriptionRepo, InsurancePlanRepo planRepo,
+			Long patient_id, Long plan_id, Subscription subscription) {
+		Optional<org.neem.neemapp.model.Subscription> opt_subscription = subscriptionRepo
+				.findById(new SubscriptionId(patient_id, plan_id));
+		if (opt_subscription.isEmpty() || opt_subscription.get() == null) {
 			return null;
 		}
-		org.neem.neemapp.model.Subscription db_subscription = subscription_list.get(0);
+		org.neem.neemapp.model.Subscription db_subscription = opt_subscription.get();
 		String subscription_overrides = org.neem.neemapp.model.InsurancePlan
 				.buildOverridesFromMap(subscription.getUsedOverrides());
 		if (db_subscription.getUsedDeductible() != subscription.getUsedDeductible()
@@ -119,8 +122,9 @@ public class Subscription {
 			subscriptionRepo.saveAndFlush(db_subscription);
 		}
 
-		return new Subscription(db_subscription.getPatientId(), db_subscription.getPlanId(),
-				db_subscription.getUsedDeductible(), db_subscription.getUsedOverridesMap());
+		InsurancePlan plan = InsurancePlan.findByPlanId(planRepo, db_subscription.getPlanId());
+		return new Subscription(db_subscription.getPatientId(), plan, db_subscription.getUsedDeductible(),
+				db_subscription.getUsedOverridesMap());
 	}
 
 	public static class SubscriptionNotFoundException extends RuntimeException {
