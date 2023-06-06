@@ -95,7 +95,7 @@ public class Subscription {
 	public static Subscription buildSubscription(org.neem.neemapp.model.Subscription db_subscription,
 			InsurancePlan plan) {
 		return new Subscription(db_subscription.getPatientId(), plan, db_subscription.getUsedDeductible(),
-				db_subscription.getJsonOverrides());
+				db_subscription.getUsedOverrides());
 	}
 
 	public static Subscription findByPatientIdAndPlan(SubscriptionRepo subscriptionRepo, Long patient_id,
@@ -125,13 +125,13 @@ public class Subscription {
 		org.neem.neemapp.model.Subscription db_subscription = opt_subscription.get();
 		String subscription_overrides = org.neem.neemapp.model.InsurancePlan.buildOverridesFromMap(
 				org.neem.neemapp.model.InsurancePlan.buildOverridesMap(subscription.getUsedOverrides()));
+		String db_overrides = org.neem.neemapp.model.InsurancePlan.buildOverridesFromMap(
+				org.neem.neemapp.model.InsurancePlan.buildOverridesMap(db_subscription.getUsedOverrides()));
 		if (subscription.getUsedDeductible() != db_subscription.getUsedDeductible()
-				|| !subscription_overrides.equals(db_subscription.getUsedOverrides())
-				|| !Objects.equals(subscription.getUsedOverrides(), db_subscription.getJsonOverrides())) {
+				|| !subscription_overrides.equals(db_overrides)) {
 
 			db_subscription.setUsedDeductible(subscription.getUsedDeductible());
-			db_subscription.setUsedOverrides(subscription_overrides);
-			db_subscription.setJsonOverrides(subscription.getUsedOverrides());
+			db_subscription.setUsedOverrides(subscription.getUsedOverrides());
 			db_subscription.setModifiedTime(LocalDateTime.now());
 			subscriptionRepo.saveAndFlush(db_subscription);
 		}

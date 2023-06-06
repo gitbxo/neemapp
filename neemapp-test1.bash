@@ -15,6 +15,12 @@ done
 echo '' ; echo ">>> subscription <<<" ; echo ''
 curl -X GET http://localhost:8000/rest/subscription/1/1
 echo '' ; echo ''
+echo '' ; echo ">>> subscription <<<" ; echo ''
+curl -X GET http://localhost:8000/rest/subscription/1/2
+echo '' ; echo ''
+echo '' ; echo ">>> subscription <<<" ; echo ''
+curl -X GET http://localhost:8000/rest/subscription/1/3
+echo '' ; echo ''
 
 
 echo ''

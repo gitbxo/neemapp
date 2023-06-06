@@ -29,12 +29,13 @@ CREATE TABLE IF NOT EXISTS subscription (
   patient_id bigint references patient NOT NULL,
   plan_id bigint references insurance_plan NOT NULL,
   used_deductible int,
-  used_overrides varchar(256),
-  json_overrides jsonb,
+  used_overrides jsonb,
   PRIMARY KEY (patient_id, plan_id)
 );
 
-ALTER TABLE subscription ADD COLUMN IF NOT EXISTS json_overrides jsonb;
+-- ALTER TABLE subscription DROP COLUMN IF EXISTS used_overrides ;
+-- ALTER TABLE subscription RENAME COLUMN json_overrides TO used_overrides ;
+-- ALTER TABLE subscription DROP COLUMN IF EXISTS json_overrides ;
 
 INSERT INTO patient (name)
  SELECT 'Jack'
@@ -64,7 +65,7 @@ INSERT INTO insurance_plan (name, description, deductible, overrides)
 ;
 
 INSERT INTO subscription (patient_id, plan_id, used_deductible, used_overrides)
- SELECT p.id, i.id, 0, ''
+ SELECT p.id, i.id, 0, null
    FROM patient p
    JOIN insurance_plan i on i.id >= p.id
  WHERE NOT EXISTS (SELECT patient_id FROM subscription WHERE patient_id = p.id)
