@@ -83,23 +83,22 @@ public class Patient {
 
 	@Override
 	public boolean equals(Object o) {
-
 		if (this == o)
 			return true;
 		if (o == null || !(o instanceof Patient))
 			return false;
-		Patient user = (Patient) o;
-		return Objects.equals(this.id, user.id) && Objects.equals(this.name, user.name);
+
+		return this.toString().equals(((Patient) o).toString());
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(this.id, this.name);
+		return Objects.hash(this.toString());
 	}
 
 	@Override
 	public String toString() {
-		return "Patient{" + "id=" + this.id + ", name='" + this.name + '\'' + '}';
+		return "Patient{" + "id=" + String.valueOf(this.id) + ", name='" + String.valueOf(this.name) + '\'' + '}';
 	}
 
 }

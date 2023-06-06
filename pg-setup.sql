@@ -30,9 +30,11 @@ CREATE TABLE IF NOT EXISTS subscription (
   plan_id bigint references insurance_plan NOT NULL,
   used_deductible int,
   used_overrides varchar(256),
+  json_overrides jsonb,
   PRIMARY KEY (patient_id, plan_id)
 );
 
+ALTER TABLE subscription ADD COLUMN IF NOT EXISTS json_overrides jsonb;
 
 INSERT INTO patient (name)
  SELECT 'Jack'

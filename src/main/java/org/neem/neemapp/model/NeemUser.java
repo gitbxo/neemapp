@@ -49,24 +49,23 @@ public class NeemUser {
 
 	@Override
 	public boolean equals(Object o) {
-
 		if (this == o)
 			return true;
 		if (o == null || !(o instanceof NeemUser))
 			return false;
-		NeemUser user = (NeemUser) o;
-		return Objects.equals(this.id, user.id) && Objects.equals(this.name, user.name)
-				&& Objects.equals(this.role, user.role);
+
+		return this.toString().equals(((NeemUser) o).toString());
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(this.id, this.name, this.role);
+		return Objects.hash(this.toString());
 	}
 
 	@Override
 	public String toString() {
-		return "NeemUser{" + "id=" + this.id + ", name='" + this.name + '\'' + ", role='" + this.role + '\'' + '}';
+		return "NeemUser{" + "id=" + String.valueOf(this.id) + ", name='" + String.valueOf(this.name) + "', role='"
+				+ String.valueOf(this.role) + '\'' + '}';
 	}
 
 }

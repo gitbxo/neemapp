@@ -1,13 +1,12 @@
 package org.neem.neemapp.api;
 
 import java.time.LocalDateTime;
-import java.util.Map;
+import java.util.HashMap;
 import java.util.Objects;
 import java.util.Optional;
 
 import org.neem.neemapp.jpa.InsurancePlanRepo;
 import org.neem.neemapp.jpa.SubscriptionRepo;
-import org.neem.neemapp.model.InsurancePlan.MedicalType;
 import org.neem.neemapp.model.SubscriptionId;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -27,10 +26,10 @@ public class Subscription {
 
 	private int usedDeductible;
 
-	private Map<MedicalType, Integer> usedOverrides;
+	private HashMap<String, Integer> usedOverrides;
 
 	public Subscription(long patientId, InsurancePlan plan, int usedDeductible,
-			Map<MedicalType, Integer> usedOverrides) {
+			HashMap<String, Integer> usedOverrides) {
 		this.patientId = patientId;
 		this.plan = plan;
 		this.usedDeductible = usedDeductible;
@@ -61,11 +60,11 @@ public class Subscription {
 		this.usedDeductible = usedDeductible;
 	}
 
-	public Map<MedicalType, Integer> getUsedOverrides() {
+	public HashMap<String, Integer> getUsedOverrides() {
 		return this.usedOverrides;
 	}
 
-	public void setUsedOverrides(Map<MedicalType, Integer> usedOverrides) {
+	public void setUsedOverrides(HashMap<String, Integer> usedOverrides) {
 		this.usedOverrides = usedOverrides;
 	}
 
@@ -88,14 +87,15 @@ public class Subscription {
 	public String toString() {
 		return "Subscription{" + " patientId='" + String.valueOf(this.patientId) + "', plan='"
 				+ String.valueOf(this.plan) + "', usedOverrides='"
-				+ org.neem.neemapp.model.InsurancePlan.buildOverridesFromMap(this.usedOverrides) + "', usedDeductible="
-				+ String.valueOf(this.usedDeductible) + '}';
+				+ org.neem.neemapp.model.InsurancePlan.buildOverridesFromMap(
+						org.neem.neemapp.model.InsurancePlan.buildOverridesMap(this.usedOverrides))
+				+ "', usedDeductible=" + String.valueOf(this.usedDeductible) + '}';
 	}
 
 	public static Subscription buildSubscription(org.neem.neemapp.model.Subscription db_subscription,
 			InsurancePlan plan) {
 		return new Subscription(db_subscription.getPatientId(), plan, db_subscription.getUsedDeductible(),
-				db_subscription.getUsedOverridesMap());
+				db_subscription.getJsonOverrides());
 	}
 
 	public static Subscription findByPatientIdAndPlan(SubscriptionRepo subscriptionRepo, Long patient_id,
@@ -123,13 +123,15 @@ public class Subscription {
 			return null;
 		}
 		org.neem.neemapp.model.Subscription db_subscription = opt_subscription.get();
-		String subscription_overrides = org.neem.neemapp.model.InsurancePlan
-				.buildOverridesFromMap(subscription.getUsedOverrides());
-		if (db_subscription.getUsedDeductible() != subscription.getUsedDeductible()
-				|| !subscription_overrides.equals(db_subscription.getUsedOverrides())) {
+		String subscription_overrides = org.neem.neemapp.model.InsurancePlan.buildOverridesFromMap(
+				org.neem.neemapp.model.InsurancePlan.buildOverridesMap(subscription.getUsedOverrides()));
+		if (subscription.getUsedDeductible() != db_subscription.getUsedDeductible()
+				|| !subscription_overrides.equals(db_subscription.getUsedOverrides())
+				|| !Objects.equals(subscription.getUsedOverrides(), db_subscription.getJsonOverrides())) {
 
 			db_subscription.setUsedDeductible(subscription.getUsedDeductible());
 			db_subscription.setUsedOverrides(subscription_overrides);
+			db_subscription.setJsonOverrides(subscription.getUsedOverrides());
 			db_subscription.setModifiedTime(LocalDateTime.now());
 			subscriptionRepo.saveAndFlush(db_subscription);
 		}

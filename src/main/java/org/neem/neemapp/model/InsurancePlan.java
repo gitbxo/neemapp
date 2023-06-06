@@ -134,6 +134,20 @@ public class InsurancePlan {
 	 * No Overrides = "" Has Overrides: "basic:10,ortho:20"
 	 */
 
+	public static Map<MedicalType, Integer> buildOverridesMap(Map<String, Integer> overrides) {
+		Map<MedicalType, Integer> overridesMap = new HashMap<>();
+		if (overrides == null) {
+			return overridesMap;
+		}
+		for (MedicalType t : MedicalType.values()) {
+			if (overrides.containsKey(t.name())) {
+				overridesMap.put(t, Integer.valueOf(overrides.get(t.name())));
+			}
+		}
+
+		return overridesMap;
+	}
+
 	public static String buildOverridesFromMap(Map<MedicalType, Integer> overridesMap) {
 		if (overridesMap == null) {
 			return "";
@@ -146,7 +160,7 @@ public class InsurancePlan {
 			} else {
 				appendComma = true;
 			}
-			sb.append(e.getKey().name()).append(":").append(e.getValue().toString());
+			sb.append(e.getKey().name()).append(":").append(String.valueOf(e.getValue()));
 		}
 		return sb.toString();
 	}
