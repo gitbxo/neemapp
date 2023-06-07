@@ -98,12 +98,12 @@ public class Subscription {
 	}
 
 	public String getUsedOverridesStr() {
-		return InsurancePlan.buildOverridesFromMap(InsurancePlan.buildOverridesMap(this.getUsedOverrides()));
+		return InsurancePlan.buildOverridesFromStrMap(this.getUsedOverrides());
 	}
 
 	public Map<InsurancePlan.MedicalType, Integer> getUsedOverridesMap() {
 		Map<InsurancePlan.MedicalType, Integer> usedOverrides = InsurancePlan
-				.getOverridesMap(this.getUsedOverridesStr());
+				.buildOverridesEnumMap(this.getUsedOverridesStr());
 
 		return usedOverrides;
 	}
@@ -126,8 +126,8 @@ public class Subscription {
 	@Override
 	public String toString() {
 		return "Subscription{" + " patientId='" + String.valueOf(this.patientId) + "', planId='"
-				+ String.valueOf(this.planId) + "', usedOverrides='" + String.valueOf(this.getUsedOverridesStr())
-				+ "', usedDeductible=" + String.valueOf(this.usedDeductible) + '}';
+				+ String.valueOf(this.planId) + "', usedOverrides='" + this.getUsedOverridesStr() + "', usedDeductible="
+				+ String.valueOf(this.usedDeductible) + '}';
 	}
 
 }

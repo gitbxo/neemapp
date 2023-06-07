@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS insurance_plan (
   name varchar(128) unique,
   description varchar(256),
   deductible int,
-  overrides varchar(256)
+  overrides jsonb
 );
 
 CREATE TABLE IF NOT EXISTS subscription (
@@ -33,9 +33,6 @@ CREATE TABLE IF NOT EXISTS subscription (
   PRIMARY KEY (patient_id, plan_id)
 );
 
--- ALTER TABLE subscription DROP COLUMN IF EXISTS used_overrides ;
--- ALTER TABLE subscription RENAME COLUMN json_overrides TO used_overrides ;
--- ALTER TABLE subscription DROP COLUMN IF EXISTS json_overrides ;
 
 INSERT INTO patient (name)
  SELECT 'Jack'
@@ -52,15 +49,15 @@ INSERT INTO patient (name)
 
 
 INSERT INTO insurance_plan (name, description, deductible, overrides)
- SELECT 'Plan1', 'Plan1', 300, ''
+ SELECT 'Plan1', 'Plan1', 300, null
  WHERE NOT EXISTS (SELECT name FROM insurance_plan WHERE name = 'Plan1')
 ;
 INSERT INTO insurance_plan (name, description, deductible, overrides)
- SELECT 'Plan2', 'Plan2', 300, ''
+ SELECT 'Plan2', 'Plan2', 300, null
  WHERE NOT EXISTS (SELECT name FROM insurance_plan WHERE name = 'Plan2')
 ;
 INSERT INTO insurance_plan (name, description, deductible, overrides)
- SELECT 'Plan3', 'Plan3', 300, ''
+ SELECT 'Plan3', 'Plan3', 300, null
  WHERE NOT EXISTS (SELECT name FROM insurance_plan WHERE name = 'Plan3')
 ;
 

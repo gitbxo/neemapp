@@ -5,13 +5,23 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
+import org.hibernate.annotations.Type;
+import org.hibernate.annotations.TypeDef;
+import org.hibernate.annotations.TypeDefs;
+
+import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
+import com.vladmihalcea.hibernate.type.json.JsonStringType;
+
 @Entity
 @Table(name = "insurance_plan")
+@TypeDefs({ @TypeDef(name = "json", typeClass = JsonStringType.class),
+		@TypeDef(name = "jsonb", typeClass = JsonBinaryType.class) })
 public class InsurancePlan {
 	// update deductibles, will have json data:
 	/*
@@ -32,20 +42,22 @@ public class InsurancePlan {
 
 	private int deductible;
 
-	private String overrides;
+	@Type(type = "jsonb")
+	@Column(name = "overrides", columnDefinition = "json")
+	private HashMap<String, Integer> overrides;
 
 	public InsurancePlan() {
 		this.name = "New Insurance Plan";
 		this.description = "New Insurance Plan";
 		this.deductible = 300;
-		this.overrides = "";
+		this.overrides = null;
 	}
 
 	public InsurancePlan(String name, String description, int deductible) {
 		this.name = name;
 		this.description = description;
 		this.deductible = deductible;
-		this.overrides = "";
+		this.overrides = null;
 	}
 
 	public Long getId() {
@@ -96,16 +108,20 @@ public class InsurancePlan {
 		this.deductible = deductible;
 	}
 
-	public String getOverrides() {
+	public HashMap<String, Integer> getOverrides() {
 		return this.overrides;
 	}
 
-	public void setOverrides(String overrides) {
+	public void setOverrides(HashMap<String, Integer> overrides) {
 		this.overrides = overrides;
 	}
 
+	public String getOverridesStr() {
+		return InsurancePlan.buildOverridesFromStrMap(this.getOverrides());
+	}
+
 	public Map<InsurancePlan.MedicalType, Integer> getOverridesMap() {
-		return InsurancePlan.getOverridesMap(this.overrides);
+		return InsurancePlan.buildOverridesEnumMap(this.getOverridesStr());
 	}
 
 	@Override
@@ -125,47 +141,74 @@ public class InsurancePlan {
 
 	@Override
 	public String toString() {
-		return "InsurancePlan{" + "id=" + String.valueOf(this.id) + ", name='" + String.valueOf(this.name) + "', description='"
-				+ String.valueOf(this.description) + "', overrides='" + String.valueOf(this.overrides)
-				+ "', deductible=" + String.valueOf(this.deductible) + '}';
+		return "InsurancePlan{" + "id=" + String.valueOf(this.id) + ", name='" + String.valueOf(this.name)
+				+ "', description='" + String.valueOf(this.description) + "', overrides='"
+				+ String.valueOf(this.overrides) + "', deductible=" + String.valueOf(this.deductible) + '}';
 	}
 
 	/*
 	 * No Overrides = "" Has Overrides: "basic:10,ortho:20"
 	 */
 
-	public static Map<MedicalType, Integer> buildOverridesMap(Map<String, Integer> overrides) {
-		Map<MedicalType, Integer> overridesMap = new HashMap<>();
+	public static String buildOverridesFromStrMap(Map<String, Integer> overridesMap) {
+		if (overridesMap == null) {
+			return "";
+		}
+		boolean appendComma = false;
+		StringBuilder sb = new StringBuilder();
+		for (MedicalType t : MedicalType.values()) {
+			if (!overridesMap.containsKey(t.name())) {
+				continue;
+			}
+
+			if (appendComma) {
+				sb.append(",");
+			} else {
+				appendComma = true;
+			}
+			sb.append(t.name()).append(":").append(String.valueOf(overridesMap.get(t.name())));
+		}
+		return sb.toString();
+	}
+
+	public static HashMap<String, Integer> buildOverridesStrMap(String overrides) {
+		HashMap<String, Integer> overridesMap = new HashMap<>();
 		if (overrides == null) {
 			return overridesMap;
 		}
 		for (MedicalType t : MedicalType.values()) {
-			if (overrides.containsKey(t.name())) {
-				overridesMap.put(t, Integer.valueOf(overrides.get(t.name())));
+			String[] s_split = overrides.split(t.name() + ":");
+			if (s_split.length == 2) {
+				String[] next_split = s_split[1].split(",");
+				overridesMap.put(t.name(), Integer.valueOf(next_split[0]));
 			}
 		}
 
 		return overridesMap;
 	}
 
-	public static String buildOverridesFromMap(Map<MedicalType, Integer> overridesMap) {
+	public static String buildOverridesFromEnumMap(Map<MedicalType, Integer> overridesMap) {
 		if (overridesMap == null) {
 			return "";
 		}
 		boolean appendComma = false;
 		StringBuilder sb = new StringBuilder();
-		for (Map.Entry<MedicalType, Integer> e : overridesMap.entrySet()) {
+		for (MedicalType t : MedicalType.values()) {
+			if (!overridesMap.containsKey(t)) {
+				continue;
+			}
+
 			if (appendComma) {
 				sb.append(",");
 			} else {
 				appendComma = true;
 			}
-			sb.append(e.getKey().name()).append(":").append(String.valueOf(e.getValue()));
+			sb.append(t.name()).append(":").append(String.valueOf(overridesMap.get(t)));
 		}
 		return sb.toString();
 	}
 
-	public static Map<MedicalType, Integer> getOverridesMap(String overrides) {
+	public static Map<MedicalType, Integer> buildOverridesEnumMap(String overrides) {
 		Map<MedicalType, Integer> overridesMap = new HashMap<>();
 		if (overrides == null) {
 			return overridesMap;

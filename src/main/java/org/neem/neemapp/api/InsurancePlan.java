@@ -103,7 +103,7 @@ public class InsurancePlan {
 	public String toString() {
 		return "InsurancePlan{" + "id=" + String.valueOf(this.id) + ", name='" + String.valueOf(this.name)
 				+ "', description='" + String.valueOf(this.description) + "', overrides='"
-				+ org.neem.neemapp.model.InsurancePlan.buildOverridesFromMap(this.overrides) + "', deductible="
+				+ org.neem.neemapp.model.InsurancePlan.buildOverridesFromEnumMap(this.overrides) + "', deductible="
 				+ String.valueOf(this.deductible) + '}';
 	}
 
@@ -134,7 +134,8 @@ public class InsurancePlan {
 		db_plan.setName(plan.getName());
 		db_plan.setDescription(plan.getDescription());
 		db_plan.setDeductible(plan.getDeductible());
-		db_plan.setOverrides(org.neem.neemapp.model.InsurancePlan.buildOverridesFromMap(plan.getOverrides()));
+		db_plan.setOverrides(org.neem.neemapp.model.InsurancePlan.buildOverridesStrMap(
+				org.neem.neemapp.model.InsurancePlan.buildOverridesFromEnumMap(plan.getOverrides())));
 		db_plan.setModifiedTime(LocalDateTime.now());
 		planRepo.saveAndFlush(db_plan);
 
