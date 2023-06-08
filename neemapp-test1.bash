@@ -32,7 +32,7 @@ echo '' ; echo ''
 
 echo ''
 curl -H 'Content-Type: application/json' -X PUT \
-  -d '{ "patientId":1, "planId":1, "coverageStartDate":"2023-01-01", "coverageEndDate":"2023-12-31", "usedDeductible":302, "usedOverrides": { "ortho":1001, "major":1002 } }' \
+  -d '{ "patientId":1, "planId":1, "coverageStartDate":"2023-01-01", "coverageEndDate":"2023-12-31", "usedDeductible":202, "usedOverrides": { "ortho":1001, "major":1002 } }' \
   'http://localhost:8000/rest/subscription/1/1'
 echo '' ; echo ''
 

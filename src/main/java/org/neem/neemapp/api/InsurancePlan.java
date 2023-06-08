@@ -6,13 +6,9 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
+import org.neem.neemapp.api.NeemAppException.InvalidValueException;
 import org.neem.neemapp.jpa.InsurancePlanRepo;
 import org.neem.neemapp.model.InsurancePlan.MedicalType;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.ControllerAdvice;
-import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.ResponseStatus;
 
 public class InsurancePlan {
 	// update deductibles, will have json data:
@@ -156,36 +152,43 @@ public class InsurancePlan {
 			return plan;
 		}
 
+		String plan_overrides = org.neem.neemapp.model.InsurancePlan
+				.buildOverridesFromEnumMap(InsurancePlan.checkInsurancePlan(plan).getOverrides());
 		db_plan.setName(plan.getName());
 		db_plan.setDescription(plan.getDescription());
 		db_plan.setPlanStartDate(plan.getPlanStartDate());
 		db_plan.setPlanEndDate(plan.getPlanEndDate());
 		db_plan.setDeductible(plan.getDeductible());
-		db_plan.setOverrides(org.neem.neemapp.model.InsurancePlan.buildOverridesStrMap(
-				org.neem.neemapp.model.InsurancePlan.buildOverridesFromEnumMap(plan.getOverrides())));
+		db_plan.setOverrides(org.neem.neemapp.model.InsurancePlan.buildOverridesStrMap(plan_overrides));
 		db_plan.setModifiedTime(LocalDateTime.now());
 		planRepo.saveAndFlush(db_plan);
 
 		return buildInsurancePlan(db_plan);
 	}
 
-	public static class PlanNotFoundException extends RuntimeException {
-
-		private static final long serialVersionUID = 101L;
-
-		PlanNotFoundException(Long id) {
-			super("Could not find plan " + id);
+	private static InsurancePlan checkInsurancePlan(InsurancePlan plan) {
+		if (plan == null) {
+			throw new InvalidValueException("Invalid value for InsurancePlan");
 		}
+
+		if (plan.getPlanStartDate() == null) {
+			throw new InvalidValueException("Invalid value for planStartDate");
+		}
+
+		if (plan.getPlanEndDate() == null || plan.getPlanEndDate().compareTo(plan.getPlanStartDate()) <= 0) {
+			throw new InvalidValueException("Invalid value for planEndDate");
+		}
+
+		if (plan.getDeductible() < 0) {
+			throw new InvalidValueException("Invalid value for deductible");
+		}
+
+		String plan_overrides = org.neem.neemapp.model.InsurancePlan.buildOverridesFromEnumMap(plan.getOverrides());
+		if (plan_overrides.contains("-")) {
+			throw new InvalidValueException("Invalid value for override");
+		}
+
+		return plan;
 	}
 
-	@ControllerAdvice
-	public static class PlanNotFoundAdvice {
-
-		@ResponseBody
-		@ExceptionHandler(PlanNotFoundException.class)
-		@ResponseStatus(HttpStatus.NOT_FOUND)
-		String notFoundHandler(PlanNotFoundException ex) {
-			return ex.getMessage();
-		}
-	}
 }

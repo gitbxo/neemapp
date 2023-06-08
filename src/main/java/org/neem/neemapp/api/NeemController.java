@@ -33,8 +33,7 @@ class NeemController {
 	// curl -X GET http://localhost:8000/rest/user/1
 	@GetMapping("/rest/user/{id}")
 	EntityModel<NeemUser> getUser(@PathVariable Long id) {
-
-		NeemUser user = userRepo.findById(id).orElseThrow(() -> new UserNotFoundException(id));
+		NeemUser user = userRepo.findById(id).orElseThrow(() -> new NeemAppException.UserNotFoundException(id));
 
 		return EntityModel.of(user, linkTo(methodOn(NeemController.class).getUser(id)).withSelfRel());
 	}
@@ -45,7 +44,7 @@ class NeemController {
 	EntityModel<InsurancePlan> getPlan(@PathVariable Long id) {
 		InsurancePlan plan = InsurancePlan.findByPlanId(planRepo, id);
 		if (plan == null) {
-			throw new InsurancePlan.PlanNotFoundException(id);
+			throw new NeemAppException.PlanNotFoundException(id);
 		}
 
 		return EntityModel.of(plan, linkTo(methodOn(NeemController.class).getPlan(id)).withSelfRel());
@@ -57,7 +56,7 @@ class NeemController {
 	InsurancePlan updatePlan(@PathVariable Long id, @RequestBody InsurancePlan plan) {
 		InsurancePlan updated = InsurancePlan.updatePlan(planRepo, id, plan);
 		if (updated == null) {
-			throw new InsurancePlan.PlanNotFoundException(id);
+			throw new NeemAppException.PlanNotFoundException(id);
 		}
 
 		return updated;
@@ -67,8 +66,7 @@ class NeemController {
 	// curl -X GET http://localhost:8000/rest/patient/1
 	@GetMapping("/rest/patient/{id}")
 	EntityModel<Patient> getPatient(@PathVariable Long id) {
-
-		Patient patient = patientRepo.findById(id).orElseThrow(() -> new UserNotFoundException(id));
+		Patient patient = patientRepo.findById(id).orElseThrow(() -> new NeemAppException.PatientNotFoundException(id));
 		patient.setSubscriptions(subscriptionRepo.findByPatientId(id));
 
 		return EntityModel.of(patient, linkTo(methodOn(NeemController.class).getPatient(id)).withSelfRel());
@@ -81,7 +79,7 @@ class NeemController {
 		Subscription subscription = Subscription.findByPatientIdAndPlanId(subscriptionRepo, planRepo, patient_id,
 				plan_id);
 		if (subscription == null) {
-			throw new Subscription.SubscriptionNotFoundException(patient_id, plan_id);
+			throw new NeemAppException.SubscriptionNotFoundException(patient_id, plan_id);
 		}
 
 		return EntityModel.of(subscription,
@@ -96,7 +94,7 @@ class NeemController {
 		Subscription updated = Subscription.updateSubscription(subscriptionRepo, planRepo, patient_id, plan_id,
 				subscription);
 		if (updated == null) {
-			throw new Subscription.SubscriptionNotFoundException(patient_id, plan_id);
+			throw new NeemAppException.SubscriptionNotFoundException(patient_id, plan_id);
 		}
 
 		return updated;

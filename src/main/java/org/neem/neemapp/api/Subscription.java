@@ -6,15 +6,11 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
+import org.neem.neemapp.api.NeemAppException.InvalidValueException;
 import org.neem.neemapp.jpa.InsurancePlanRepo;
 import org.neem.neemapp.jpa.SubscriptionRepo;
 import org.neem.neemapp.model.SubscriptionId;
 import org.neem.neemapp.model.InsurancePlan.MedicalType;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.ControllerAdvice;
-import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.ResponseStatus;
 
 public class Subscription {
 	// update deductibles, will have json data:
@@ -84,8 +80,20 @@ public class Subscription {
 		this.usedDeductible = usedDeductible;
 	}
 
+	public int getRemainingDeductible() {
+		return (this.plan == null ? 0 : this.plan.getDeductible()) - this.usedDeductible;
+	}
+
 	public Map<MedicalType, Integer> getUsedOverrides() {
 		return this.usedOverrides;
+	}
+
+	public Map<MedicalType, Integer> getRemainingOverrides() {
+		if (this.plan == null) {
+			return null;
+		}
+		return org.neem.neemapp.model.InsurancePlan.computeRemainingEnumMap(this.plan.getOverrides(),
+				this.getUsedOverrides());
 	}
 
 	public void setUsedOverrides(Map<MedicalType, Integer> usedOverrides) {
@@ -149,7 +157,7 @@ public class Subscription {
 		}
 		org.neem.neemapp.model.Subscription db_subscription = opt_subscription.get();
 		String subscription_overrides = org.neem.neemapp.model.InsurancePlan
-				.buildOverridesFromEnumMap(subscription.getUsedOverrides());
+				.buildOverridesFromEnumMap(Subscription.checkSubscription(subscription).getUsedOverrides());
 		if (subscription.getCoverageStartDate() != db_subscription.getCoverageStartDate()
 				|| subscription.getCoverageEndDate() != db_subscription.getCoverageEndDate()
 				|| subscription.getUsedDeductible() != db_subscription.getUsedDeductible()
@@ -170,26 +178,37 @@ public class Subscription {
 	public static Subscription updateSubscription(SubscriptionRepo subscriptionRepo, InsurancePlanRepo planRepo,
 			Long patient_id, Long plan_id, Subscription subscription) {
 		InsurancePlan plan = InsurancePlan.findByPlanId(planRepo, plan_id);
+		subscription.setPlan(plan);
 		return updateSubscription(subscriptionRepo, patient_id, plan, subscription);
 	}
 
-	public static class SubscriptionNotFoundException extends RuntimeException {
-
-		private static final long serialVersionUID = 101L;
-
-		SubscriptionNotFoundException(Long patient_id, Long plan_id) {
-			super("Could not find subscription for ( " + patient_id + " , " + plan_id + " )");
+	private static Subscription checkSubscription(Subscription subscription) {
+		if (subscription == null || subscription.getPlan() == null) {
+			throw new InvalidValueException("Invalid value for Subscription");
 		}
+
+		if (subscription.getCoverageStartDate() == null
+				|| subscription.getCoverageStartDate().compareTo(subscription.getPlan().getPlanStartDate()) < 0) {
+			throw new InvalidValueException("Invalid value for coverageStartDate");
+		}
+
+		if (subscription.getCoverageEndDate() == null
+				|| subscription.getCoverageEndDate().compareTo(subscription.getCoverageStartDate()) <= 0
+				|| subscription.getCoverageEndDate().compareTo(subscription.getPlan().getPlanEndDate()) > 0) {
+			throw new InvalidValueException("Invalid value for coverageEndDate");
+		}
+
+		if (subscription.getRemainingDeductible() < 0) {
+			throw new InvalidValueException("Invalid value for deductible");
+		}
+
+		String remaining_overrides = org.neem.neemapp.model.InsurancePlan
+				.buildOverridesFromEnumMap(subscription.getRemainingOverrides());
+		if (remaining_overrides.contains("-")) {
+			throw new InvalidValueException("Invalid value for override");
+		}
+
+		return subscription;
 	}
 
-	@ControllerAdvice
-	public static class SubscriptionNotFoundAdvice {
-
-		@ResponseBody
-		@ExceptionHandler(SubscriptionNotFoundException.class)
-		@ResponseStatus(HttpStatus.NOT_FOUND)
-		String notFoundHandler(SubscriptionNotFoundException ex) {
-			return ex.getMessage();
-		}
-	}
 }

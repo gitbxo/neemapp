@@ -244,4 +244,23 @@ public class InsurancePlan {
 
 		return overridesMap;
 	}
+
+	public static Map<MedicalType, Integer> computeRemainingEnumMap(Map<MedicalType, Integer> overrides,
+			Map<MedicalType, Integer> usedOverrides) {
+		Map<MedicalType, Integer> overridesMap = new HashMap<>();
+		if (overrides == null) {
+			return overridesMap;
+		}
+		for (MedicalType t : MedicalType.values()) {
+			if (!overrides.containsKey(t))
+				continue;
+			if (usedOverrides != null && usedOverrides.containsKey(t)) {
+				overridesMap.put(t, overrides.get(t) - usedOverrides.get(t));
+			} else {
+				overridesMap.put(t, overrides.get(t));
+			}
+		}
+
+		return overridesMap;
+	}
 }
