@@ -17,6 +17,8 @@ CREATE TABLE IF NOT EXISTS insurance_plan (
   id bigserial primary key,
   created TIMESTAMP DEFAULT NOW(),
   modified TIMESTAMP DEFAULT NOW(),
+  plan_start_date DATE,
+  plan_end_date DATE,
   name varchar(128) unique,
   description varchar(256),
   deductible int,
@@ -24,10 +26,12 @@ CREATE TABLE IF NOT EXISTS insurance_plan (
 );
 
 CREATE TABLE IF NOT EXISTS subscription (
-  created TIMESTAMP DEFAULT NOW(),
-  modified TIMESTAMP DEFAULT NOW(),
   patient_id bigint references patient NOT NULL,
   plan_id bigint references insurance_plan NOT NULL,
+  created TIMESTAMP DEFAULT NOW(),
+  modified TIMESTAMP DEFAULT NOW(),
+  coverage_start_date DATE,
+  coverage_end_date DATE,
   used_deductible int,
   used_overrides jsonb,
   PRIMARY KEY (patient_id, plan_id)

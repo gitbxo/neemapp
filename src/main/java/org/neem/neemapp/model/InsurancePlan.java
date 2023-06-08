@@ -1,5 +1,6 @@
 package org.neem.neemapp.model;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
@@ -35,6 +36,8 @@ public class InsurancePlan {
 	private @Id @GeneratedValue Long id;
 	private LocalDateTime created;
 	private LocalDateTime modified;
+	private LocalDate planStartDate;
+	private LocalDate planEndDate;
 
 	private String name;
 
@@ -84,6 +87,22 @@ public class InsurancePlan {
 		this.modified = modified;
 	}
 
+	public LocalDate getPlanStartDate() {
+		return this.planStartDate;
+	}
+
+	public void setPlanStartDate(LocalDate planStartDate) {
+		this.planStartDate = planStartDate;
+	}
+
+	public LocalDate getPlanEndDate() {
+		return this.planEndDate;
+	}
+
+	public void setPlanEndDate(LocalDate planEndDate) {
+		this.planEndDate = planEndDate;
+	}
+
 	public String getName() {
 		return this.name;
 	}
@@ -120,7 +139,7 @@ public class InsurancePlan {
 		return InsurancePlan.buildOverridesFromStrMap(this.getOverrides());
 	}
 
-	public Map<InsurancePlan.MedicalType, Integer> getOverridesMap() {
+	public Map<InsurancePlan.MedicalType, Integer> getOverridesEnumMap() {
 		return InsurancePlan.buildOverridesEnumMap(this.getOverridesStr());
 	}
 
@@ -142,8 +161,10 @@ public class InsurancePlan {
 	@Override
 	public String toString() {
 		return "InsurancePlan{" + "id=" + String.valueOf(this.id) + ", name='" + String.valueOf(this.name)
-				+ "', description='" + String.valueOf(this.description) + "', overrides='"
-				+ String.valueOf(this.overrides) + "', deductible=" + String.valueOf(this.deductible) + '}';
+				+ "', description='" + String.valueOf(this.description) + "', planStart='"
+				+ String.valueOf(this.planStartDate) + "', planEnd='" + String.valueOf(this.planEndDate)
+				+ "', overrides='" + String.valueOf(this.overrides) + "', deductible=" + String.valueOf(this.deductible)
+				+ '}';
 	}
 
 	/*

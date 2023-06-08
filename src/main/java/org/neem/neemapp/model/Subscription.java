@@ -1,5 +1,6 @@
 package org.neem.neemapp.model;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
@@ -33,6 +34,10 @@ public class Subscription {
 
 	private LocalDateTime modified;
 
+	private LocalDate coverageStartDate;
+
+	private LocalDate coverageEndDate;
+
 	private int usedDeductible;
 
 	@Type(type = "jsonb")
@@ -63,6 +68,22 @@ public class Subscription {
 
 	public void setModifiedTime(LocalDateTime modified) {
 		this.modified = modified;
+	}
+
+	public LocalDate getCoverageStartDate() {
+		return this.coverageStartDate;
+	}
+
+	public void setCoverageStartDate(LocalDate coverageStartDate) {
+		this.coverageStartDate = coverageStartDate;
+	}
+
+	public LocalDate getCoverageEndDate() {
+		return this.coverageEndDate;
+	}
+
+	public void setCoverageEndDate(LocalDate coverageEndDate) {
+		this.coverageEndDate = coverageEndDate;
 	}
 
 	public long getPatientId() {
@@ -101,11 +122,8 @@ public class Subscription {
 		return InsurancePlan.buildOverridesFromStrMap(this.getUsedOverrides());
 	}
 
-	public Map<InsurancePlan.MedicalType, Integer> getUsedOverridesMap() {
-		Map<InsurancePlan.MedicalType, Integer> usedOverrides = InsurancePlan
-				.buildOverridesEnumMap(this.getUsedOverridesStr());
-
-		return usedOverrides;
+	public Map<InsurancePlan.MedicalType, Integer> getUsedOverridesEnumMap() {
+		return InsurancePlan.buildOverridesEnumMap(this.getUsedOverridesStr());
 	}
 
 	@Override
@@ -126,8 +144,9 @@ public class Subscription {
 	@Override
 	public String toString() {
 		return "Subscription{" + " patientId='" + String.valueOf(this.patientId) + "', planId='"
-				+ String.valueOf(this.planId) + "', usedOverrides='" + this.getUsedOverridesStr() + "', usedDeductible="
-				+ String.valueOf(this.usedDeductible) + '}';
+				+ String.valueOf(this.planId) + "', coverageStart='" + String.valueOf(this.coverageStartDate)
+				+ "', coverageEnd='" + String.valueOf(this.coverageEndDate) + "', usedOverrides='"
+				+ this.getUsedOverridesStr() + "', usedDeductible=" + String.valueOf(this.usedDeductible) + '}';
 	}
 
 }
