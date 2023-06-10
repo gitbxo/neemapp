@@ -149,6 +149,39 @@ public class Subscription {
 		return findByPatientIdAndPlan(subscriptionRepo, patient_id, plan);
 	}
 
+	public static Subscription createSubscription(SubscriptionRepo subscriptionRepo, String patient_id,
+			InsurancePlan plan, Subscription subscription) {
+		Optional<org.neem.neemapp.model.Subscription> opt_subscription = subscriptionRepo
+				.findById(new SubscriptionId(UUID.fromString(patient_id), UUID.fromString(plan.getId())));
+		if (!opt_subscription.isEmpty()) {
+			throw new InvalidValueException("Duplicate Subscription");
+		}
+
+		String subscription_overrides = org.neem.neemapp.model.InsurancePlan
+				.buildOverridesFromEnumMap(Subscription.checkSubscription(subscription).getUsedOverrides());
+		org.neem.neemapp.model.Subscription db_subscription = new org.neem.neemapp.model.Subscription();
+
+		db_subscription.setPatientId(UUID.fromString(patient_id));
+		db_subscription.setPlanId(UUID.fromString(plan.getId()));
+		db_subscription.setCoverageStartDate(subscription.getCoverageStartDate());
+		db_subscription.setCoverageEndDate(subscription.getCoverageEndDate());
+		db_subscription.setUsedDeductible(subscription.getUsedDeductible());
+		db_subscription
+				.setUsedOverrides(org.neem.neemapp.model.InsurancePlan.buildOverridesStrMap(subscription_overrides));
+		db_subscription.setCreatedTime(LocalDateTime.now());
+		db_subscription.setModifiedTime(LocalDateTime.now());
+		subscriptionRepo.saveAndFlush(db_subscription);
+
+		return buildSubscription(db_subscription, plan);
+	}
+
+	public static Subscription createSubscription(SubscriptionRepo subscriptionRepo, InsurancePlanRepo planRepo,
+			String patient_id, String plan_id, Subscription subscription) {
+		InsurancePlan plan = InsurancePlan.findByPlanId(planRepo, plan_id);
+		subscription.setPlan(plan);
+		return createSubscription(subscriptionRepo, patient_id, plan, subscription);
+	}
+
 	public static Subscription updateSubscription(SubscriptionRepo subscriptionRepo, String patient_id,
 			InsurancePlan plan, Subscription subscription) {
 		Optional<org.neem.neemapp.model.Subscription> opt_subscription = subscriptionRepo

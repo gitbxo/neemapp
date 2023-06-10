@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -53,6 +54,13 @@ class NeemController {
 	}
 
 	// Example command:
+	// curl -X POST http://localhost:8000/rest/plan
+	@PostMapping("/rest/plan")
+	InsurancePlan createPlan(@RequestBody InsurancePlan plan) {
+		return InsurancePlan.createPlan(planRepo, plan);
+	}
+
+	// Example command:
 	// curl -X PUT http://localhost:8000/rest/plan/1
 	@PutMapping("/rest/plan/{id}")
 	InsurancePlan updatePlan(@PathVariable String id, @RequestBody InsurancePlan plan) {
@@ -87,6 +95,14 @@ class NeemController {
 
 		return EntityModel.of(subscription,
 				linkTo(methodOn(NeemController.class).getSubscription(patient_id, plan_id)).withSelfRel());
+	}
+
+	// Example command:
+	// curl -X POST http://localhost:8000/rest/subscription/1/2
+	@PostMapping("/rest/subscription/{patient_id}/{plan_id}")
+	Subscription createSubscription(@PathVariable String patient_id, @PathVariable String plan_id,
+			@RequestBody Subscription subscription) {
+		return Subscription.createSubscription(subscriptionRepo, planRepo, patient_id, plan_id, subscription);
 	}
 
 	// Example command:

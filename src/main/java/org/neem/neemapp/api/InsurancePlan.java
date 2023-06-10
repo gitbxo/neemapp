@@ -143,6 +143,30 @@ public class InsurancePlan {
 		return buildInsurancePlan(opt_plan.get());
 	}
 
+	private static InsurancePlan createOrUpdatePlan(InsurancePlanRepo planRepo, InsurancePlan plan,
+			org.neem.neemapp.model.InsurancePlan db_plan) {
+		String plan_overrides = org.neem.neemapp.model.InsurancePlan
+				.buildOverridesFromEnumMap(InsurancePlan.checkInsurancePlan(plan).getOverrides());
+		if (db_plan == null) {
+			db_plan = new org.neem.neemapp.model.InsurancePlan();
+			db_plan.setCreatedTime(LocalDateTime.now());
+		}
+		db_plan.setName(plan.getName());
+		db_plan.setDescription(plan.getDescription());
+		db_plan.setPlanStartDate(plan.getPlanStartDate());
+		db_plan.setPlanEndDate(plan.getPlanEndDate());
+		db_plan.setDeductible(plan.getDeductible());
+		db_plan.setOverrides(org.neem.neemapp.model.InsurancePlan.buildOverridesStrMap(plan_overrides));
+		db_plan.setModifiedTime(LocalDateTime.now());
+		planRepo.saveAndFlush(db_plan);
+
+		return buildInsurancePlan(db_plan);
+	}
+
+	public static InsurancePlan createPlan(InsurancePlanRepo planRepo, InsurancePlan plan) {
+		return InsurancePlan.createOrUpdatePlan(planRepo, plan, null);
+	}
+
 	public static InsurancePlan updatePlan(InsurancePlanRepo planRepo, String plan_id, InsurancePlan plan) {
 		Optional<org.neem.neemapp.model.InsurancePlan> opt_plan = planRepo.findById(UUID.fromString(plan_id));
 		if (opt_plan.isEmpty() || opt_plan.get() == null) {
@@ -154,18 +178,7 @@ public class InsurancePlan {
 			return plan;
 		}
 
-		String plan_overrides = org.neem.neemapp.model.InsurancePlan
-				.buildOverridesFromEnumMap(InsurancePlan.checkInsurancePlan(plan).getOverrides());
-		db_plan.setName(plan.getName());
-		db_plan.setDescription(plan.getDescription());
-		db_plan.setPlanStartDate(plan.getPlanStartDate());
-		db_plan.setPlanEndDate(plan.getPlanEndDate());
-		db_plan.setDeductible(plan.getDeductible());
-		db_plan.setOverrides(org.neem.neemapp.model.InsurancePlan.buildOverridesStrMap(plan_overrides));
-		db_plan.setModifiedTime(LocalDateTime.now());
-		planRepo.saveAndFlush(db_plan);
-
-		return buildInsurancePlan(db_plan);
+		return createOrUpdatePlan(planRepo, plan, db_plan);
 	}
 
 	private static InsurancePlan checkInsurancePlan(InsurancePlan plan) {
@@ -187,7 +200,7 @@ public class InsurancePlan {
 
 		String plan_overrides = org.neem.neemapp.model.InsurancePlan.buildOverridesFromEnumMap(plan.getOverrides());
 		if (plan_overrides.contains("-")) {
-			throw new InvalidValueException("Invalid value for override");
+			throw new InvalidValueException("Invalid value for overrides");
 		}
 
 		return plan;
