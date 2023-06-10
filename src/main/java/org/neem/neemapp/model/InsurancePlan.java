@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.UUID;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -33,7 +34,11 @@ public class InsurancePlan {
 		basic, preventive, ortho, major, other
 	}
 
-	private @Id @GeneratedValue Long id;
+	@Id
+	@GeneratedValue
+	@Column(columnDefinition = "uuid", updatable = false)
+	private UUID id;
+
 	private LocalDateTime created;
 	private LocalDateTime modified;
 	private LocalDate planStartDate;
@@ -63,11 +68,11 @@ public class InsurancePlan {
 		this.overrides = null;
 	}
 
-	public Long getId() {
+	public UUID getId() {
 		return this.id;
 	}
 
-	public void setId(Long id) {
+	public void setId(UUID id) {
 		this.id = id;
 	}
 

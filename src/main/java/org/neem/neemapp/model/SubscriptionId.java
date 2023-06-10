@@ -2,20 +2,21 @@ package org.neem.neemapp.model;
 
 import java.io.Serializable;
 import java.util.Objects;
+import java.util.UUID;
 
 @SuppressWarnings("serial")
 public class SubscriptionId implements Serializable {
-	private Long patientId;
-	private Long planId;
+	private UUID patientId;
+	private UUID planId;
 
 	// default constructor
 
 	public SubscriptionId() {
-		this.patientId = -1L;
-		this.planId = -1L;
+		this.patientId = UUID.randomUUID();
+		this.planId = UUID.randomUUID();
 	}
 
-	public SubscriptionId(Long patientId, Long planId) {
+	public SubscriptionId(UUID patientId, UUID planId) {
 		this.patientId = patientId;
 		this.planId = planId;
 	}

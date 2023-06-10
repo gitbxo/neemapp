@@ -3,7 +3,9 @@ package org.neem.neemapp.model;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
@@ -14,8 +16,13 @@ import javax.persistence.Transient;
 @Table(name = "patient")
 public class Patient {
 
-	private @Id @GeneratedValue Long id;
+	@Id
+	@GeneratedValue
+	@Column(columnDefinition = "uuid", updatable = false)
+	private UUID id;
+
 	private LocalDateTime created;
+
 	private LocalDateTime modified;
 
 	private String name;
@@ -30,11 +37,11 @@ public class Patient {
 		this.name = name;
 	}
 
-	public Long getId() {
+	public UUID getId() {
 		return this.id;
 	}
 
-	public void setId(Long id) {
+	public void setId(UUID id) {
 		this.id = id;
 	}
 

@@ -29,7 +29,7 @@ public class NeemAppException {
 	public static class PatientNotFoundException extends RuntimeException {
 		private static final long serialVersionUID = 102L;
 
-		PatientNotFoundException(Long id) {
+		PatientNotFoundException(String id) {
 			super("Could not find patient " + id);
 		}
 	}
@@ -47,7 +47,7 @@ public class NeemAppException {
 	public static class PlanNotFoundException extends RuntimeException {
 		private static final long serialVersionUID = 103L;
 
-		PlanNotFoundException(Long id) {
+		PlanNotFoundException(String id) {
 			super("Could not find plan " + id);
 		}
 	}
@@ -65,7 +65,7 @@ public class NeemAppException {
 	public static class SubscriptionNotFoundException extends RuntimeException {
 		private static final long serialVersionUID = 104L;
 
-		SubscriptionNotFoundException(Long patient_id, Long plan_id) {
+		SubscriptionNotFoundException(String patient_id, String plan_id) {
 			super("Could not find subscription for ( " + patient_id + " , " + plan_id + " )");
 		}
 	}

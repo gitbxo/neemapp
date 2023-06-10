@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.UUID;
 
 import org.neem.neemapp.api.NeemAppException.InvalidValueException;
 import org.neem.neemapp.jpa.InsurancePlanRepo;
@@ -18,7 +19,7 @@ public class Subscription {
 	 * { "plan_id": 123, "deductible": 300, "overrides": { "ortho": 1000 } }
 	 */
 
-	private Long patientId;
+	private String patientId;
 
 	private InsurancePlan plan;
 
@@ -30,7 +31,7 @@ public class Subscription {
 
 	private Map<MedicalType, Integer> usedOverrides;
 
-	public Subscription(long patientId, InsurancePlan plan, LocalDate start, LocalDate end, int usedDeductible,
+	public Subscription(String patientId, InsurancePlan plan, LocalDate start, LocalDate end, int usedDeductible,
 			Map<MedicalType, Integer> usedOverrides) {
 		this.patientId = patientId;
 		this.plan = plan;
@@ -40,11 +41,11 @@ public class Subscription {
 		this.usedOverrides = usedOverrides;
 	}
 
-	public Long getPatientId() {
+	public String getPatientId() {
 		return this.patientId;
 	}
 
-	public void setPatientId(Long patientId) {
+	public void setPatientId(String patientId) {
 		this.patientId = patientId;
 	}
 
@@ -126,15 +127,15 @@ public class Subscription {
 
 	public static Subscription buildSubscription(org.neem.neemapp.model.Subscription db_subscription,
 			InsurancePlan plan) {
-		return new Subscription(db_subscription.getPatientId(), plan, db_subscription.getCoverageStartDate(),
-				db_subscription.getCoverageEndDate(), db_subscription.getUsedDeductible(),
-				db_subscription.getUsedOverridesEnumMap());
+		return new Subscription(String.valueOf(db_subscription.getPatientId()), plan,
+				db_subscription.getCoverageStartDate(), db_subscription.getCoverageEndDate(),
+				db_subscription.getUsedDeductible(), db_subscription.getUsedOverridesEnumMap());
 	}
 
-	public static Subscription findByPatientIdAndPlan(SubscriptionRepo subscriptionRepo, Long patient_id,
+	public static Subscription findByPatientIdAndPlan(SubscriptionRepo subscriptionRepo, String patient_id,
 			InsurancePlan plan) {
 		Optional<org.neem.neemapp.model.Subscription> opt_subscription = subscriptionRepo
-				.findById(new SubscriptionId(patient_id, plan.getId()));
+				.findById(new SubscriptionId(UUID.fromString(patient_id), UUID.fromString(plan.getId())));
 		if (opt_subscription.isEmpty() || opt_subscription.get() == null) {
 			return null;
 		}
@@ -143,15 +144,15 @@ public class Subscription {
 	}
 
 	public static Subscription findByPatientIdAndPlanId(SubscriptionRepo subscriptionRepo, InsurancePlanRepo planRepo,
-			Long patient_id, Long plan_id) {
+			String patient_id, String plan_id) {
 		InsurancePlan plan = InsurancePlan.findByPlanId(planRepo, plan_id);
 		return findByPatientIdAndPlan(subscriptionRepo, patient_id, plan);
 	}
 
-	public static Subscription updateSubscription(SubscriptionRepo subscriptionRepo, Long patient_id,
+	public static Subscription updateSubscription(SubscriptionRepo subscriptionRepo, String patient_id,
 			InsurancePlan plan, Subscription subscription) {
 		Optional<org.neem.neemapp.model.Subscription> opt_subscription = subscriptionRepo
-				.findById(new SubscriptionId(patient_id, plan.getId()));
+				.findById(new SubscriptionId(UUID.fromString(patient_id), UUID.fromString(plan.getId())));
 		if (opt_subscription.isEmpty() || opt_subscription.get() == null) {
 			return null;
 		}
@@ -176,7 +177,7 @@ public class Subscription {
 	}
 
 	public static Subscription updateSubscription(SubscriptionRepo subscriptionRepo, InsurancePlanRepo planRepo,
-			Long patient_id, Long plan_id, Subscription subscription) {
+			String patient_id, String plan_id, Subscription subscription) {
 		InsurancePlan plan = InsurancePlan.findByPlanId(planRepo, plan_id);
 		subscription.setPlan(plan);
 		return updateSubscription(subscriptionRepo, patient_id, plan, subscription);

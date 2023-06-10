@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.UUID;
 
 import org.neem.neemapp.api.NeemAppException.InvalidValueException;
 import org.neem.neemapp.jpa.InsurancePlanRepo;
@@ -16,7 +17,7 @@ public class InsurancePlan {
 	 * { "plan_id": 123, "deductible": 300, "overrides": { "ortho": 1000 } }
 	 */
 
-	private Long id;
+	private String id;
 
 	private String name;
 
@@ -36,7 +37,7 @@ public class InsurancePlan {
 		this.deductible = 300;
 	}
 
-	public InsurancePlan(Long id, String name, String description, LocalDate start, LocalDate end, int deductible,
+	public InsurancePlan(String id, String name, String description, LocalDate start, LocalDate end, int deductible,
 			Map<MedicalType, Integer> overrides) {
 		this.id = id;
 		this.name = name;
@@ -47,11 +48,11 @@ public class InsurancePlan {
 		this.overrides = overrides;
 	}
 
-	public Long getId() {
+	public String getId() {
 		return this.id;
 	}
 
-	public void setId(Long id) {
+	public void setId(String id) {
 		this.id = id;
 	}
 
@@ -128,13 +129,13 @@ public class InsurancePlan {
 	}
 
 	public static InsurancePlan buildInsurancePlan(org.neem.neemapp.model.InsurancePlan db_plan) {
-		return new InsurancePlan(db_plan.getId(), db_plan.getName(), db_plan.getDescription(),
+		return new InsurancePlan(String.valueOf(db_plan.getId()), db_plan.getName(), db_plan.getDescription(),
 				db_plan.getPlanStartDate(), db_plan.getPlanEndDate(), db_plan.getDeductible(),
 				db_plan.getOverridesEnumMap());
 	}
 
-	public static InsurancePlan findByPlanId(InsurancePlanRepo planRepo, Long plan_id) {
-		Optional<org.neem.neemapp.model.InsurancePlan> opt_plan = planRepo.findById(plan_id);
+	public static InsurancePlan findByPlanId(InsurancePlanRepo planRepo, String plan_id) {
+		Optional<org.neem.neemapp.model.InsurancePlan> opt_plan = planRepo.findById(UUID.fromString(plan_id));
 		if (opt_plan.isEmpty() || opt_plan.get() == null) {
 			return null;
 		}
@@ -142,8 +143,8 @@ public class InsurancePlan {
 		return buildInsurancePlan(opt_plan.get());
 	}
 
-	public static InsurancePlan updatePlan(InsurancePlanRepo planRepo, Long plan_id, InsurancePlan plan) {
-		Optional<org.neem.neemapp.model.InsurancePlan> opt_plan = planRepo.findById(plan_id);
+	public static InsurancePlan updatePlan(InsurancePlanRepo planRepo, String plan_id, InsurancePlan plan) {
+		Optional<org.neem.neemapp.model.InsurancePlan> opt_plan = planRepo.findById(UUID.fromString(plan_id));
 		if (opt_plan.isEmpty() || opt_plan.get() == null) {
 			return null;
 		}

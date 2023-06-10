@@ -7,14 +7,14 @@
 
 
 CREATE TABLE IF NOT EXISTS patient (
-  id bigserial primary key,
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   created TIMESTAMP DEFAULT NOW(),
   modified TIMESTAMP DEFAULT NOW(),
   name varchar(128) unique
 );
 
 CREATE TABLE IF NOT EXISTS insurance_plan (
-  id bigserial primary key,
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   created TIMESTAMP DEFAULT NOW(),
   modified TIMESTAMP DEFAULT NOW(),
   plan_start_date DATE,
@@ -26,8 +26,8 @@ CREATE TABLE IF NOT EXISTS insurance_plan (
 );
 
 CREATE TABLE IF NOT EXISTS subscription (
-  patient_id bigint references patient NOT NULL,
-  plan_id bigint references insurance_plan NOT NULL,
+  patient_id uuid references patient NOT NULL,
+  plan_id uuid references insurance_plan NOT NULL,
   created TIMESTAMP DEFAULT NOW(),
   modified TIMESTAMP DEFAULT NOW(),
   coverage_start_date DATE,
@@ -67,9 +67,11 @@ INSERT INTO insurance_plan (name, description, deductible, overrides)
 
 INSERT INTO subscription (patient_id, plan_id, used_deductible, used_overrides)
  SELECT p.id, i.id, 0, null
-   FROM patient p
-   JOIN insurance_plan i on i.id >= p.id
+   FROM patient p , insurance_plan i
  WHERE NOT EXISTS (SELECT patient_id FROM subscription WHERE patient_id = p.id)
+   AND ( ( i.name = 'Plan3' AND p.name in ( 'Jack', 'Jill', 'John' ) )
+        OR ( i.name = 'Plan2' AND p.name in ( 'Jill', 'John' ) )
+        OR ( i.name = 'Plan1' AND p.name = 'John' ) )
 ;
 
 

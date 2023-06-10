@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.UUID;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -26,9 +27,9 @@ import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
 		@TypeDef(name = "jsonb", typeClass = JsonBinaryType.class) })
 public class Subscription {
 
-	private @Id Long patientId;
+	private @Id UUID patientId;
 
-	private @Id Long planId;
+	private @Id UUID planId;
 
 	private LocalDateTime created;
 
@@ -86,19 +87,19 @@ public class Subscription {
 		this.coverageEndDate = coverageEndDate;
 	}
 
-	public long getPatientId() {
+	public UUID getPatientId() {
 		return this.patientId;
 	}
 
-	public void setPatientId(long patientId) {
+	public void setPatientId(UUID patientId) {
 		this.patientId = patientId;
 	}
 
-	public long getPlanId() {
+	public UUID getPlanId() {
 		return this.planId;
 	}
 
-	public void setPlanId(long planId) {
+	public void setPlanId(UUID planId) {
 		this.planId = planId;
 	}
 

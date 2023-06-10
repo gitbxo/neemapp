@@ -3,6 +3,8 @@ package org.neem.neemapp.api;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
+import java.util.UUID;
+
 import org.neem.neemapp.jpa.NeemUserRepo;
 import org.neem.neemapp.jpa.InsurancePlanRepo;
 import org.neem.neemapp.jpa.PatientRepo;
@@ -41,7 +43,7 @@ class NeemController {
 	// Example command:
 	// curl -X GET http://localhost:8000/rest/plan/1
 	@GetMapping("/rest/plan/{id}")
-	EntityModel<InsurancePlan> getPlan(@PathVariable Long id) {
+	EntityModel<InsurancePlan> getPlan(@PathVariable String id) {
 		InsurancePlan plan = InsurancePlan.findByPlanId(planRepo, id);
 		if (plan == null) {
 			throw new NeemAppException.PlanNotFoundException(id);
@@ -53,7 +55,7 @@ class NeemController {
 	// Example command:
 	// curl -X PUT http://localhost:8000/rest/plan/1
 	@PutMapping("/rest/plan/{id}")
-	InsurancePlan updatePlan(@PathVariable Long id, @RequestBody InsurancePlan plan) {
+	InsurancePlan updatePlan(@PathVariable String id, @RequestBody InsurancePlan plan) {
 		InsurancePlan updated = InsurancePlan.updatePlan(planRepo, id, plan);
 		if (updated == null) {
 			throw new NeemAppException.PlanNotFoundException(id);
@@ -65,9 +67,10 @@ class NeemController {
 	// Example command:
 	// curl -X GET http://localhost:8000/rest/patient/1
 	@GetMapping("/rest/patient/{id}")
-	EntityModel<Patient> getPatient(@PathVariable Long id) {
-		Patient patient = patientRepo.findById(id).orElseThrow(() -> new NeemAppException.PatientNotFoundException(id));
-		patient.setSubscriptions(subscriptionRepo.findByPatientId(id));
+	EntityModel<Patient> getPatient(@PathVariable String id) {
+		Patient patient = patientRepo.findById(UUID.fromString(id))
+				.orElseThrow(() -> new NeemAppException.PatientNotFoundException(id));
+		patient.setSubscriptions(subscriptionRepo.findByPatientId(patient.getId()));
 
 		return EntityModel.of(patient, linkTo(methodOn(NeemController.class).getPatient(id)).withSelfRel());
 	}
@@ -75,7 +78,7 @@ class NeemController {
 	// Example command:
 	// curl -X GET http://localhost:8000/rest/subscription/1/2
 	@GetMapping("/rest/subscription/{patient_id}/{plan_id}")
-	EntityModel<Subscription> getSubscription(@PathVariable Long patient_id, @PathVariable Long plan_id) {
+	EntityModel<Subscription> getSubscription(@PathVariable String patient_id, @PathVariable String plan_id) {
 		Subscription subscription = Subscription.findByPatientIdAndPlanId(subscriptionRepo, planRepo, patient_id,
 				plan_id);
 		if (subscription == null) {
@@ -89,7 +92,7 @@ class NeemController {
 	// Example command:
 	// curl -X PUT http://localhost:8000/rest/subscription/1/2
 	@PutMapping("/rest/subscription/{patient_id}/{plan_id}")
-	Subscription updateSubscription(@PathVariable Long patient_id, @PathVariable Long plan_id,
+	Subscription updateSubscription(@PathVariable String patient_id, @PathVariable String plan_id,
 			@RequestBody Subscription subscription) {
 		Subscription updated = Subscription.updateSubscription(subscriptionRepo, planRepo, patient_id, plan_id,
 				subscription);
