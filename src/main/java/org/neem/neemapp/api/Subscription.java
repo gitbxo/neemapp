@@ -159,8 +159,10 @@ public class Subscription {
 		org.neem.neemapp.model.Subscription db_subscription = opt_subscription.get();
 		String subscription_overrides = org.neem.neemapp.model.InsurancePlan
 				.buildOverridesFromEnumMap(Subscription.checkSubscription(subscription).getUsedOverrides());
-		if (subscription.getCoverageStartDate() != db_subscription.getCoverageStartDate()
-				|| subscription.getCoverageEndDate() != db_subscription.getCoverageEndDate()
+		if (!String.valueOf(subscription.getCoverageStartDate())
+				.equals(String.valueOf(db_subscription.getCoverageStartDate()))
+				|| !String.valueOf(subscription.getCoverageEndDate())
+						.equals(String.valueOf(db_subscription.getCoverageEndDate()))
 				|| subscription.getUsedDeductible() != db_subscription.getUsedDeductible()
 				|| !subscription_overrides.equals(db_subscription.getUsedOverridesStr())) {
 
