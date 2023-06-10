@@ -149,6 +149,7 @@ public class InsurancePlan {
 			return null;
 		}
 		org.neem.neemapp.model.InsurancePlan db_plan = opt_plan.get();
+		plan.setId(plan_id);
 		if (plan.equals(buildInsurancePlan(db_plan))) {
 			return plan;
 		}
