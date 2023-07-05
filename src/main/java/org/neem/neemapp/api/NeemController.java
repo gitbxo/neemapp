@@ -56,20 +56,21 @@ class NeemController {
 	// Example command:
 	// curl -X POST http://localhost:8000/rest/plan
 	@PostMapping("/rest/plan")
-	InsurancePlan createPlan(@RequestBody InsurancePlan plan) {
-		return InsurancePlan.createPlan(planRepo, plan);
+	EntityModel<InsurancePlan> createPlan(@RequestBody InsurancePlan plan) {
+		InsurancePlan created = InsurancePlan.createPlan(planRepo, plan);
+		return EntityModel.of(created, linkTo(methodOn(NeemController.class).getPlan(created.getId())).withRel("self"));
 	}
 
 	// Example command:
 	// curl -X PUT http://localhost:8000/rest/plan/1
 	@PutMapping("/rest/plan/{id}")
-	InsurancePlan updatePlan(@PathVariable String id, @RequestBody InsurancePlan plan) {
+	EntityModel<InsurancePlan> updatePlan(@PathVariable String id, @RequestBody InsurancePlan plan) {
 		InsurancePlan updated = InsurancePlan.updatePlan(planRepo, id, plan);
 		if (updated == null) {
 			throw new NeemAppException.PlanNotFoundException(id);
 		}
 
-		return updated;
+		return EntityModel.of(updated, linkTo(methodOn(NeemController.class).getPlan(updated.getId())).withRel("self"));
 	}
 
 	// Example command:
@@ -100,15 +101,18 @@ class NeemController {
 	// Example command:
 	// curl -X POST http://localhost:8000/rest/subscription/1/2
 	@PostMapping("/rest/subscription/{patient_id}/{plan_id}")
-	Subscription createSubscription(@PathVariable String patient_id, @PathVariable String plan_id,
+	EntityModel<Subscription> createSubscription(@PathVariable String patient_id, @PathVariable String plan_id,
 			@RequestBody Subscription subscription) {
-		return Subscription.createSubscription(subscriptionRepo, planRepo, patient_id, plan_id, subscription);
+		Subscription created = Subscription.createSubscription(subscriptionRepo, planRepo, patient_id, plan_id,
+				subscription);
+		return EntityModel.of(created,
+				linkTo(methodOn(NeemController.class).getSubscription(patient_id, plan_id)).withRel("self"));
 	}
 
 	// Example command:
 	// curl -X PUT http://localhost:8000/rest/subscription/1/2
 	@PutMapping("/rest/subscription/{patient_id}/{plan_id}")
-	Subscription updateSubscription(@PathVariable String patient_id, @PathVariable String plan_id,
+	EntityModel<Subscription> updateSubscription(@PathVariable String patient_id, @PathVariable String plan_id,
 			@RequestBody Subscription subscription) {
 		Subscription updated = Subscription.updateSubscription(subscriptionRepo, planRepo, patient_id, plan_id,
 				subscription);
@@ -116,7 +120,8 @@ class NeemController {
 			throw new NeemAppException.SubscriptionNotFoundException(patient_id, plan_id);
 		}
 
-		return updated;
+		return EntityModel.of(updated,
+				linkTo(methodOn(NeemController.class).getSubscription(patient_id, plan_id)).withRel("self"));
 	}
 
 }
