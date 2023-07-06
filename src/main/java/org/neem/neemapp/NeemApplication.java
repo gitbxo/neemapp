@@ -13,7 +13,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
  */
 
 @SpringBootApplication
-@EntityScan(basePackages = {"org.neem.neemapp.model"})
+@EntityScan(basePackages = { "org.neem.neemapp.model" })
 @EnableJpaRepositories("org.neem.neemapp.jpa")
 public class NeemApplication {
 
