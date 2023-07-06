@@ -12,10 +12,6 @@ CREATE TABLE IF NOT EXISTS hashtest (
   emp_hash integer NOT NULL ,
   PRIMARY KEY (emp_id, emp_hash) )
  PARTITION BY list( emp_hash ) ;
--- PARTITION BY hash(hashtext( cast( emp_id as text ))) ;
-
--- SELECT ('x' || lpad(md5sum(substr(cast( emp_id as varchar ), 12, 4)), 8, '0'))::bit(32)::int AS int_val
--- SELECT ('x' || lpad(hex, 8, '0'))::bit(32)::int AS int_val
 
 
 CREATE TABLE IF NOT EXISTS hashtest_0 PARTITION OF hashtest DEFAULT ;
@@ -23,12 +19,15 @@ CREATE TABLE IF NOT EXISTS hashtest_1 PARTITION OF hashtest FOR VALUES IN (1, 5,
 CREATE TABLE IF NOT EXISTS hashtest_2 PARTITION OF hashtest FOR VALUES IN (2, 6, 10, 14);
 CREATE TABLE IF NOT EXISTS hashtest_3 PARTITION OF hashtest FOR VALUES IN (3, 7, 11, 15);
 
+INSERT INTO hashtest ( emp_id, emp_name, emp_hash )
+    SELECT id, name , ('x0' || right(cast( id as varchar ), 4))::bit(20)::int % 16
+      FROM insurance_plan
+     WHERE id NOT IN (SELECT emp_id FROM hashtest) ;
 
 DO $$
 BEGIN
 IF NOT EXISTS ( SELECT conname, oid, conrelid FROM pg_constraint WHERE conname = 'hashtest_check_emp' ) THEN
-  EXECUTE 'ALTER TABLE hashtest ADD CONSTRAINT hashtest_check_emp CHECK( (''x0000'' || right(cast( emp_id as varchar ), 4))::bit(32)::int % 16 = emp_hash )' ;
-  INSERT INTO hashtest ( emp_id, emp_name, emp_hash ) SELECT id, name , ('x0000' || right(cast( id as varchar ), 4))::bit(32)::int % 16 from insurance_plan ;
+  EXECUTE 'ALTER TABLE hashtest ADD CONSTRAINT hashtest_check_emp CHECK( (''x0'' || right(cast( emp_id as varchar ), 4))::bit(20)::int % 16 = emp_hash )' ;
 END IF ;
 END $$ ;
 

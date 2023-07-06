@@ -7,24 +7,19 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.IdClass;
-import javax.persistence.Table;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.IdClass;
+import jakarta.persistence.Table;
 
 import org.hibernate.annotations.Type;
-import org.hibernate.annotations.TypeDef;
-import org.hibernate.annotations.TypeDefs;
 
-import com.vladmihalcea.hibernate.type.json.JsonStringType;
 import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
 
 @Entity
 @IdClass(SubscriptionId.class)
 @Table(name = "subscription")
-@TypeDefs({ @TypeDef(name = "json", typeClass = JsonStringType.class),
-		@TypeDef(name = "jsonb", typeClass = JsonBinaryType.class) })
 public class Subscription {
 
 	private @Id UUID patientId;
@@ -41,8 +36,8 @@ public class Subscription {
 
 	private int usedDeductible;
 
-	@Type(type = "jsonb")
-	@Column(name = "used_overrides", columnDefinition = "json")
+	@Type(JsonBinaryType.class)
+	@Column(name = "used_overrides")
 	private HashMap<String, Integer> usedOverrides;
 
 	public Subscription() {

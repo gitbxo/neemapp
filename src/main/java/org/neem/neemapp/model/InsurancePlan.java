@@ -7,23 +7,18 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 
 import org.hibernate.annotations.Type;
-import org.hibernate.annotations.TypeDef;
-import org.hibernate.annotations.TypeDefs;
 
 import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
-import com.vladmihalcea.hibernate.type.json.JsonStringType;
 
 @Entity
 @Table(name = "insurance_plan")
-@TypeDefs({ @TypeDef(name = "json", typeClass = JsonStringType.class),
-		@TypeDef(name = "jsonb", typeClass = JsonBinaryType.class) })
 public class InsurancePlan {
 	// update deductibles, will have json data:
 	/*
@@ -50,8 +45,8 @@ public class InsurancePlan {
 
 	private int deductible;
 
-	@Type(type = "jsonb")
-	@Column(name = "overrides", columnDefinition = "json")
+	@Type(JsonBinaryType.class)
+	@Column(name = "overrides")
 	private HashMap<String, Integer> overrides;
 
 	public InsurancePlan() {
